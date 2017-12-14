@@ -57,7 +57,7 @@ public class Course {
 
         // TODO delete dummy for
         for(Schedule schedule : schedules)
-            s += schedule.getDate().getDate() + "\n";
+            s += schedule.getDate() + "\n";
 
         return s;
     }

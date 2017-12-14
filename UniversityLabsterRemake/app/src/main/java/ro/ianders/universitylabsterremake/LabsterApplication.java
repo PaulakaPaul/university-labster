@@ -10,6 +10,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -48,7 +53,60 @@ public class LabsterApplication extends Application {
     private List<Student> students;
 
     //comparator to sort Date types (using a lambda expression)
-    private Comparator<Schedule> byDateComparator = (d1, d2) -> d1.getDate().compareTo(d2.getDate());
+    private Comparator<Schedule> byDateComparator = (d1, d2) -> {
+
+        //we save the date in the database as a string so we need to see it as a date when we compare it
+
+        //TODO add a DateTimeFormatter for the month for the catch block in case of example: 10/1/2017 if the data that you get from the EditText does not match and if matches dd/MM/yyyy for all the data remove the day catch block
+
+
+        /* this is better for available only from the API 26 which represents <1% of the used androids
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter1ForException = DateTimeFormatter.ofPattern("d/MM/yyyy");
+
+        LocalDate date1;
+        try {
+            date1 = LocalDate.parse(d1.getDate(), formatter);
+        } catch (DateTimeParseException e) {
+            date1 = LocalDate.parse(d1.getDate(), formatter1ForException);
+        }
+        LocalDate date2;
+        try {
+            date2  = LocalDate.parse(d2.getDate(), formatter);
+        } catch (DateTimeParseException e) {
+            date2 = LocalDate.parse(d2.getDate(), formatter1ForException);
+        }
+
+        return date1.compareTo(date2);*/
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat formatter1ForException = new SimpleDateFormat("d/MM/yyyy");
+
+
+        Date date1;
+        try {
+            date1 = formatter.parse(d1.getDate());
+        } catch (ParseException e) {
+            try {
+                date1 = formatter1ForException.parse(d1.getDate());
+            } catch (ParseException e1) {
+                throw new RuntimeException("Wrong data type to parse !!!");
+            }
+        }
+        Date date2;
+        try {
+            date2  = formatter.parse(d2.getDate());
+        } catch (ParseException e) {
+            try {
+                date2 = formatter1ForException.parse(d2.getDate());
+            } catch (ParseException e1) {
+                throw new RuntimeException("Wrong data type to parse !!!");
+            }
+        }
+
+        return date1.compareTo(date2);
+    };
 
 
     public static LabsterApplication getInstace() {
@@ -78,13 +136,13 @@ public class LabsterApplication extends Application {
         settingListenersForDataBase();
 
 
-        //dummy set of data
+        //dummy set of data : DON'T DELETE IT, IT's USED FOR TESTING
 
         /*
         Course c ;
         CourseData courseData = new CourseData("POO", "Parvan", 2, "AC", "CTI");
         Professor professor = new Professor("profesor", "email");
-        Schedule schedule = new Schedule(new Date(2017, 10, 26), "10:00", "12:00");
+        Schedule schedule = new Schedule("09/12/2017", "10:00", "12:00",1);
 
         List<Professor> professors = new ArrayList<>();
         professors.add(professor);
@@ -119,14 +177,14 @@ public class LabsterApplication extends Application {
         ActivityCourse activityCourse;
         CourseData courseData2 = new CourseData("POO", "Parvan", 2, "AC", "CTI");
         Professor professor3 = new Professor("profesor", "email");
-        Schedule schedule2 = new Schedule(new Date(2017, 10, 3), "10:00", "12:00");
+        Schedule schedule2 = new Schedule("10/12/2017", "10:00", "12:00", 1);
 
         List<Professor> professors1 = new ArrayList<>();
         professors1.add(professor3);
         List<Schedule> schedules1 = new ArrayList<>();
         schedules1.add(schedule2);
         schedules1.add(schedule);
-        schedules1.add(new Schedule(new Date(2017, 10, 1), "16:00", "18:00"));
+        schedules1.add(new Schedule("8/12/2017", "16:00", "18:00", 2));
 
         List<String> checkins1  = new ArrayList<String>() {{
             add("paul");
@@ -176,8 +234,8 @@ public class LabsterApplication extends Application {
                 professors, checkins, schedules));
         checkins.add("Ionel");
         saveFieldToActivityCourse(activityCourse1, DatabaseConstants.ACTIVITYCOURSE_CHECKINS, checkins);
-        */
 
+        */
 
     }
 

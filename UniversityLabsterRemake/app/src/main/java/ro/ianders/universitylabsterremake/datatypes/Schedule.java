@@ -1,6 +1,6 @@
 package ro.ianders.universitylabsterremake.datatypes;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 /**
  * Created by paul.iusztin on 12.12.2017.
@@ -8,19 +8,21 @@ import java.util.Date;
 
 public class Schedule {
 
-    private Date date;
+    private String date;
     private String startTime;
     private String endTime;
+    private int courseStep; // if it repeats from one week to another or only in the even weekens etc...
 
     public Schedule() {}
 
-    public Schedule(Date date, String startTime, String endTime) {
+    public Schedule(String date, String startTime, String endTime, int courseStep) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.courseStep = courseStep;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -30,5 +32,9 @@ public class Schedule {
 
     public String getEndTime() {
         return endTime;
+    }
+
+    public int getCourseStep() {
+        return courseStep;
     }
 }

@@ -121,7 +121,7 @@ public class MainActivityActivity extends AppCompatActivity
             Course c ;
             CourseData courseData = new CourseData("Structuri de Date si Algoritmi", "Parvan", 3, "AC", "CTI");
             Professor professor = new Professor("profesor", "email");
-            Schedule schedule = new Schedule(new Date(), "10:00", "12:00");
+            Schedule schedule = new Schedule("5/12/2017", "10:00", "12:00", 2);
 
             List<Professor> professors = new ArrayList<>();
             professors.add(professor);
@@ -155,8 +155,8 @@ public class MainActivityActivity extends AppCompatActivity
 
             // TODO delete dummy data
             List<Schedule> schedules = new ArrayList<>();
-            schedules.add(new Schedule(new Date(), "13:00", "17:00"));
-            schedules.add(new Schedule(new Date(), "15:00", "19:00"));
+            schedules.add(new Schedule("9/12/2017", "13:00", "17:00", 2));
+            schedules.add(new Schedule("15/12/2017", "15:00", "19:00",1));
 
             LabsterApplication.getInstace().saveSchedulesToACourse("Structuri de Date si Algoritmi", schedules);
 
