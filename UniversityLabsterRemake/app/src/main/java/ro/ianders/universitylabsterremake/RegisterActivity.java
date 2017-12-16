@@ -2,7 +2,6 @@ package ro.ianders.universitylabsterremake;
 
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
@@ -27,10 +26,10 @@ import com.google.firebase.auth.FirebaseAuth;
 /**
  * A login screen that offers login via etEmail/password.
  */
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
+public class RegisterActivity extends AppCompatActivity implements View.OnClickListener{
 
     private ProgressBar pbLogin;
-    private ScrollView loginForm;
+    private ScrollView svRegister;
     private LinearLayout emailLoginForm;
     private AutoCompleteTextView etEmail;
     private EditText etPassword;
@@ -39,17 +38,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private FirebaseAuth firebaseAuth;
 
+    private boolean registeredSuccesfully;// used in the AsyncTask to test if we save data to firebase
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        // Set up the login form.
+        setContentView(R.layout.activity_register);
 
         //get instance for firebaseAuth
         firebaseAuth = FirebaseAuth.getInstance();
 
         pbLogin = findViewById(R.id.login_progress);
-        loginForm = findViewById(R.id.login_form);
+        svRegister = findViewById(R.id.svRegister);
         emailLoginForm = findViewById(R.id.email_login_form);
         etEmail = findViewById(R.id.email);
         etPassword = findViewById(R.id.password);
@@ -69,9 +69,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             registerUser();
         } else if ( v == tvGoToSignIn) {
             // go to login activity
+            Toast.makeText(this, "Going to Sign In acitivty !", Toast.LENGTH_SHORT).show();
         }
     }
 
+
+    // function called when btnRegister is clicked
     private void registerUser() {
 
         String email =  etEmail.getText().toString().trim();
@@ -89,57 +92,36 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return;
         }
 
+
         //we continue registration
         // TODO more email and password validation
-        new LoginInBackground().execute(email, password); // it start a background thread
-    }
 
+        pbLogin.setVisibility(View.VISIBLE); // we want to see only the progress bar
+        svRegister.setVisibility(View.GONE);
 
-    // background thread for registration
-    public class LoginInBackground extends AsyncTask<String, Void, Void> {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
 
-
-        @Override
-        protected void onPreExecute() { // first method that runs
-            super.onPreExecute();
-            pbLogin.setVisibility(View.VISIBLE);
-        }
-        // runs on the UI thread
-
-        @Override
-        protected Void doInBackground(String... strings) { // second method that runs in the background thread
-
-            String email = strings[0]; // passed in this order from the UI thread
-            String password = strings[1]; // passed in this order from the UI thread
-
-            firebaseAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if(task.isSuccessful()) {
-                                //user is successfully registered and logged
-                                // TODO we will start the profile activity here
-                                Toast.makeText(LoginActivity.this, "Registered Succesfully!", Toast.LENGTH_SHORT).show();
-                                //  finish(); // to not be able to go back to the same activity
-                            } else {
-                                Toast.makeText(LoginActivity.this, "Registration failed... Please try again !", Toast.LENGTH_SHORT).show();
-                            }
+                        if(task.isSuccessful()) { // if everything is ok we proceed send the user to fill he's other profile data
+                            Toast.makeText(RegisterActivity.this, "Registered Succesfully!", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(RegisterActivity.this, RegisterActivityFillData.class)
+                                                .putExtra("email", email)
+                                                .putExtra("password", password)); // continue your registration
+                        } else {
+                            Toast.makeText(RegisterActivity.this, "Registration failed... Please try again !", Toast.LENGTH_SHORT).show();
                         }
-                    });
 
+                        pbLogin.setVisibility(View.GONE);
+                        svRegister.setVisibility(View.VISIBLE);
+                        if(task.isSuccessful()) // finish the activity only if we created the account
+                            finish(); // to not be able to go back to the same activity
 
-            return null;
-        }
+                    }
+                });
 
-
-        @Override
-        protected void onPostExecute(Void aVoid) { // last method that runs on the UI thread
-            super.onPostExecute(aVoid);
-
-            pbLogin.setVisibility(View.GONE);
-            startActivity(new Intent(LoginActivity.this, MainActivityActivity.class));
-            finish();
-        }
     }
+
 }
 

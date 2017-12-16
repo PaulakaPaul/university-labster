@@ -392,9 +392,19 @@ public class LabsterApplication extends Application {
     }
 
 
+    // getter for data
     public Set<Course> getCourses() {
         return courses;
     }
+
+    public Set<ActivityCourse> getActivities() {
+        return activities;
+    }
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
 
 
     public String getAcronym(String name) {

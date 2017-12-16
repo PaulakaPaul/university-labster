@@ -11,10 +11,8 @@ public class Student {
     private String faculty;
     private String section;
     private int year;
-
     private String username;
     private String password;
-
     private Profile profile;
 
     public Student() {}
@@ -26,6 +24,15 @@ public class Student {
         this.username = username;
         this.password = password;
         this.profile = profile;
+    }
+
+    public Student(String faculty, String section, int year, String password, Profile profile) { //username is not mandatory
+        this.faculty = faculty;
+        this.section = section;
+        this.year = year;
+        this.password = password;
+        this.profile = profile;
+        this.username = null;
     }
 
     public String getFaculty() {
