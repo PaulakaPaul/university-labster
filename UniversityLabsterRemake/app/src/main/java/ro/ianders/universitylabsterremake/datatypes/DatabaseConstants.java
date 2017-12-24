@@ -12,6 +12,7 @@ public class DatabaseConstants {
     public static final String COURSE_PROFESSORS = "professors";
     public static final String COURSE_SCHEDULES = "schedules";
     public static final String COURSE_CHECKINS = "checkins";
+    public static final String COURSE_KEY = "key";
 
     //students constants
     public static final String STUDENTS_NODE = "students";
@@ -21,6 +22,8 @@ public class DatabaseConstants {
     public static final String STUDENT_FACULTY = "faculty";
     public static final String STUDENT_YEAR = "year";
     public static final String STUDENT_SECTION = "section";
+    public static final String STUDENT_KEY = "key";
+
 
     //activity courses constants
     public static final String ACTIVITYCOURSES_NODE = "activitycourses";
@@ -29,4 +32,6 @@ public class DatabaseConstants {
     public static final String ACTIVITYCOURSE_PROFESSORS = "professors";
     public static final String ACTIVITYCOURSE_SCHEDULES = "schedules";
     public static final String ACTIVITYCOURSE_CHECKINS = "checkins";
+    public static final String ACTIVITYCOURSE_KEY = "key";
+
 }

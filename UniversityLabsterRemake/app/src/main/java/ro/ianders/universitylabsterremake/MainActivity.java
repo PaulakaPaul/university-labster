@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,9 +36,20 @@ import ro.ianders.universitylabsterremake.datatypes.Schedule;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private FirebaseAuth firebaseAuth;
+
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        if(firebaseAuth.getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -104,71 +117,27 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_camera) {
-            // Handle the camera action
 
-            //TODO delete dummy data
-            Log.e("acronym", LabsterApplication.getInstace().getAcronym("POO"));
 
         } else if (id == R.id.nav_gallery) {
 
-            // TODO delete debugging log.e info
-            for(Course c : LabsterApplication.getInstace().getCourses())
-                Log.e("main", c.toString());
 
         } else if (id == R.id.nav_slideshow) {
-
-            // TODO delete dummy data
-            Course c ;
-            CourseData courseData = new CourseData("Structuri de Date si Algoritmi", "Parvan", 3, "AC", "CTI");
-            Professor professor = new Professor("profesor", "email");
-            Schedule schedule = new Schedule("5/12/2017", "10:00", "12:00", 2);
-
-            List<Professor> professors = new ArrayList<>();
-            professors.add(professor);
-            List<Schedule> schedules = new ArrayList<>();
-            schedules.add(schedule);
-
-            List<String> checkins  = new ArrayList<String>() {{
-                add("marcel");
-                add("dani");
-            }};
-
-            c = new Course(courseData, professors, checkins, schedules);
-
-            LabsterApplication.getInstace().saveCourse(c);
 
 
         } else if (id == R.id.nav_manage) {
 
 
-            // TODO delete dummy data
-            List<String> checkins = new ArrayList<String>() {{
-                add("Tudor");
-                add("Marcela");
-                add("Viorel");
-                add("Grasanu");
-            }};
-
-            LabsterApplication.getInstace().saveCheckinsToACourse("Programarea Orientata pe Obiecte", checkins);
 
         } else if (id == R.id.nav_share) {
 
-            // TODO delete dummy data
-            List<Schedule> schedules = new ArrayList<>();
-            schedules.add(new Schedule("9/12/2017", "13:00", "17:00", 2));
-            schedules.add(new Schedule("15/12/2017", "15:00", "19:00",1));
-
-            LabsterApplication.getInstace().saveSchedulesToACourse("Structuri de Date si Algoritmi", schedules);
 
         } else if (id == R.id.nav_send) {
+            //TODO added here the sign out logic
 
-            // TODO delete dummy data
-            List<Professor> professors = new ArrayList<>();
-            professors.add(new Professor("prof1", "email1"));
-            professors.add(new Professor("prof11"));
-
-            LabsterApplication.getInstace().saveProfessorsToACourse("Arhitectura Calculatoarelor", professors);
-
+            firebaseAuth.signOut();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

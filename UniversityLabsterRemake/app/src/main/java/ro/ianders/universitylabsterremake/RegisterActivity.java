@@ -22,6 +22,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import ro.ianders.universitylabsterremake.datatypes.Student;
+
 
 /**
  * A login screen that offers login via etEmail/password.
@@ -38,7 +40,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private FirebaseAuth firebaseAuth;
 
-    private boolean registeredSuccesfully;// used in the AsyncTask to test if we save data to firebase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +69,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         if(v == btnRegister) {
             registerUser();
         } else if ( v == tvGoToSignIn) {
-            // go to login activity
-            Toast.makeText(this, "Going to Sign In acitivty !", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
         }
     }
 
@@ -87,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
 
         if(TextUtils.isEmpty(password)) {
-            //pasword is empty
+            //password is empty
             Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -106,6 +107,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                         if(task.isSuccessful()) { // if everything is ok we proceed send the user to fill he's other profile data
                             Toast.makeText(RegisterActivity.this, "Registered Succesfully!", Toast.LENGTH_SHORT).show();
+
+                            Student newStudent = new Student(email, password);
+                            LabsterApplication.getInstace().saveStudent(newStudent, true); //first save student to database
+
                             startActivity(new Intent(RegisterActivity.this, RegisterActivityFillData.class)
                                                 .putExtra("email", email)
                                                 .putExtra("password", password)); // continue your registration
@@ -115,6 +120,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
                         pbLogin.setVisibility(View.GONE);
                         svRegister.setVisibility(View.VISIBLE);
+
                         if(task.isSuccessful()) // finish the activity only if we created the account
                             finish(); // to not be able to go back to the same activity
 

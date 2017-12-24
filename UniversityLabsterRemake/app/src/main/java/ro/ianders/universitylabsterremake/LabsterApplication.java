@@ -156,7 +156,7 @@ public class LabsterApplication extends Application {
 
         c = new Course(courseData, professors, checkins, schedules);
 
-        FirebaseDatabase.getInstance().getReference().child("courses").child("poo").setValue(c.toMap());
+        saveCourse(c, true);
 
 
         Course b ;
@@ -171,7 +171,7 @@ public class LabsterApplication extends Application {
 
         b = new Course(courseData, professors, checkins, schedules);
 
-        FirebaseDatabase.getInstance().getReference().child("courses").child("ac").setValue(b.toMap());
+       saveCourse(c, true);
 
         //dummy set of data
         ActivityCourse activityCourse;
@@ -193,8 +193,7 @@ public class LabsterApplication extends Application {
 
         activityCourse = new ActivityCourse("laborator", courseData2, professors1, checkins1, schedules1);
 
-        FirebaseDatabase.getInstance().getReference().child(DatabaseConstants.ACTIVITYCOURSES_NODE).child("poo").setValue(activityCourse.toMap());
-
+        saveActivityCourse(activityCourse, true);
 
         ActivityCourse activityCourse1;
 
@@ -208,7 +207,7 @@ public class LabsterApplication extends Application {
 
         activityCourse1 = new ActivityCourse("seminar", courseData, professors, checkins, schedules);
 
-        FirebaseDatabase.getInstance().getReference().child(DatabaseConstants.ACTIVITYCOURSES_NODE).child("ac").setValue(activityCourse1.toMap());
+       saveActivityCourse(activityCourse1, true);
 
         //student dummy data
 
@@ -218,30 +217,30 @@ public class LabsterApplication extends Application {
         Student student = new Student("AC", "CTI", 2, "PaulakaPaul", "1234", profile );
         Student student1 = new Student("AC", "IS", 1, "prostul", "hello", profile1);
 
-        FirebaseDatabase.getInstance().getReference(DatabaseConstants.STUDENTS_NODE).child("pauliusztin").setValue(student.toMap());
-        FirebaseDatabase.getInstance().getReference(DatabaseConstants.STUDENTS_NODE).child("mihaiiovanac").setValue(student1.toMap());
+        saveStudent(student, true);
+        saveStudent(student1, true);
 
 
         //testing methods for students
 
-        saveStudent(new Student("ETC", "ETC1", 3, "Mihaita", "5678", new Profile("Mihai", "Popescu", "mail")));
+        saveStudent(new Student("ETC", "ETC1", 3, "Mihaita", "5678", new Profile("Mihai", "Popescu", "mail")), true);
         saveFieldToStudent(student1, DatabaseConstants.STUDENT_USERNAME, "desteptul");
 
 
         //testing methods for activity courses
 
         saveActivityCourse(new ActivityCourse("laborator", new CourseData("Circuite Digitale", "Parvan", 2, "AC", "CTI"),
-                professors, checkins, schedules));
+                professors, checkins, schedules), true);
         checkins.add("Ionel");
         saveFieldToActivityCourse(activityCourse1, DatabaseConstants.ACTIVITYCOURSE_CHECKINS, checkins);
-
         */
+
 
     }
 
 
 
-    private void settingListenersForDataBase() {
+    public void settingListenersForDataBase() {
 
 
         //listener for the Courses
@@ -253,6 +252,7 @@ public class LabsterApplication extends Application {
 
                 for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
+                    String key = dataSnapshot1.child(DatabaseConstants.COURSE_KEY).getValue(String.class);
                     List<String> checkins = dataSnapshot1.child(DatabaseConstants.COURSE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
                     CourseData courseData = dataSnapshot1.child(DatabaseConstants.COURSE_DATA).getValue(CourseData.class);
                     List<Professor> professors = dataSnapshot1.child(DatabaseConstants.COURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
@@ -262,7 +262,7 @@ public class LabsterApplication extends Application {
 
                     // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
 
-                    Course c = new Course(courseData, professors, checkins, schedules);
+                    Course c = new Course(key, courseData, professors, checkins, schedules);
                     courses.add(c);
 
                     // TODO delete debugging info log.e
@@ -287,6 +287,7 @@ public class LabsterApplication extends Application {
 
                 for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
+                    String key = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_KEY).getValue(String.class);
                     String type = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_TYPE).getValue(String.class);
                     List<String> checkins = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
                     CourseData courseData = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_DATA).getValue(CourseData.class);
@@ -297,7 +298,7 @@ public class LabsterApplication extends Application {
 
                     // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
 
-                    ActivityCourse c = new ActivityCourse(type, courseData, professors, checkins, schedules);
+                    ActivityCourse c = new ActivityCourse(key, type, courseData, professors, checkins, schedules);
                     activities.add(c);
 
                     // TODO delete debugging info log.e
@@ -336,59 +337,80 @@ public class LabsterApplication extends Application {
     }
 
     //saving functions for courses
-    public void saveCourse(Course course) {
+    public void saveCourse(Course course, boolean generateKey) {
 
-        databaseReferenceCourses.child(getAcronym(course.getCourseData().getNameCourse()).
-                toLowerCase()).setValue(course.toMap());
+        if(generateKey) { // if we have to generate the key for the first time
+
+            String key = databaseReferenceCourses.push().getKey();
+            course.setKey(key);
+        }
+
+
+        databaseReferenceCourses.child(course.getKey())
+                    .setValue(course.toMap());
+
+
     }
 
-    public void saveCheckinsToACourse(String courseName, List<String> checkins) {
+    public void saveCheckinsToACourse(Course course, List<String> checkins) {
 
         //using maps it's usually ok when you update multiple locations at the same time
         HashMap<String, Object> updates = new HashMap<>();
-        updates.put(getAcronym(courseName).toLowerCase() + "/" + DatabaseConstants.COURSE_CHECKINS, checkins);
+        updates.put(course.getKey() + "/" + DatabaseConstants.COURSE_CHECKINS, checkins);
 
         databaseReferenceCourses.updateChildren(updates);
     }
 
-    public void saveSchedulesToACourse(String courseName, List<Schedule> schedules) {
-        databaseReferenceCourses.child(getAcronym(courseName).toLowerCase() + "/" + DatabaseConstants.COURSE_SCHEDULES).setValue(schedules);
+    public void saveSchedulesToACourse(Course course, List<Schedule> schedules) {
+        databaseReferenceCourses.child(course.getKey() + "/" + DatabaseConstants.COURSE_SCHEDULES).setValue(schedules);
     }
 
-    public void saveProfessorsToACourse(String courseName, List<Professor> professors) {
-        databaseReferenceCourses.child(getAcronym(courseName).toLowerCase() + "/" + DatabaseConstants.COURSE_PROFESSORS).setValue(professors);
+    public void saveProfessorsToACourse(Course course, List<Professor> professors) {
+        databaseReferenceCourses.child(course.getKey() + "/" + DatabaseConstants.COURSE_PROFESSORS).setValue(professors);
     }
 
     public void saveFieldToCourse(Course course, String field, Object valueToSave) {
         //the field is from the DatabaseConstants specifiers
 
         //TODO check the field to be only from the DatabaseConstants, otherwise you can't update with this method
-        databaseReferenceCourses.child(createCourseKey(course)).child(field).setValue(valueToSave);
+        databaseReferenceCourses.child(course.getKey()).child(field).setValue(valueToSave);
     }
 
 
     //saving functions for students
-    public void saveStudent(Student student) {
-        databaseReferenceStudents.child(createStudentKey(student)).setValue(student.toMap());
+    public void saveStudent(Student student, boolean generateKey) {
+
+        if(generateKey) { // if we have to generate the key for the first time
+            String key = databaseReferenceStudents.push().getKey();
+            student.setKey(key);
+        }
+
+        databaseReferenceStudents.child(student.getKey()).setValue(student.toMap());
     }
 
     public void saveFieldToStudent(Student student, String field, Object valueToSave) {
         //the field is from the DatabaseConstants specifiers
 
         //TODO check the field to be only from the DatabaseConstants, otherwise you can't update with this method
-        databaseReferenceStudents.child(createStudentKey(student)).child(field).setValue(valueToSave);
+        databaseReferenceStudents.child(student.getKey()).child(field).setValue(valueToSave);
     }
 
     //saving functions for activitycoures
-    public void saveActivityCourse(ActivityCourse activityCourse) {
-        databaseReferenceActivityCourses.child(createActivityCourseKey(activityCourse)).setValue(activityCourse.toMap());
+    public void saveActivityCourse(ActivityCourse activityCourse, boolean generateKey) {
+
+        if(generateKey) { // if we have to generate the key for the first time
+            String key = databaseReferenceActivityCourses.push().getKey();
+            activityCourse.setKey(key);
+        }
+
+        databaseReferenceActivityCourses.child(activityCourse.getKey()).setValue(activityCourse.toMap());
     }
 
     public void saveFieldToActivityCourse(ActivityCourse activityCourse, String field, Object valueToSave) {
         //the field is from the DatabaseConstants specifiers
 
         //TODO check the field to be only from the DatabaseConstants, otherwise you can't update with this method
-        databaseReferenceActivityCourses.child(createActivityCourseKey(activityCourse)).child(field).setValue(valueToSave);
+        databaseReferenceActivityCourses.child(activityCourse.getKey()).child(field).setValue(valueToSave);
     }
 
 
@@ -442,18 +464,5 @@ public class LabsterApplication extends Application {
         return acronym;
     }
 
-
-    //creating keys for data
-    public String createCourseKey(Course course) {
-        return getAcronym(course.getCourseData().getNameCourse()).toLowerCase();
-    }
-
-    public String createStudentKey(Student student) {
-        return (student.getProfile().getFirstName() + student.getProfile().getLastName()).toLowerCase();
-    }
-
-    public String createActivityCourseKey(ActivityCourse activityCourse) {
-        return getAcronym(activityCourse.getCourseData().getNameCourse()).toLowerCase();
-    }
 
 }
