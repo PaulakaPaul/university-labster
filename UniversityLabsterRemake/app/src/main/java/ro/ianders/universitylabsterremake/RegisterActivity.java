@@ -109,8 +109,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             Toast.makeText(RegisterActivity.this, "Registered Succesfully!", Toast.LENGTH_SHORT).show();
 
                             Student newStudent = new Student(email, password);
-                            LabsterApplication.getInstace().saveStudent(newStudent, true); //first save student to database
 
+                            LabsterApplication.getInstace().saveStudent(newStudent, true); //first save student to database
                             startActivity(new Intent(RegisterActivity.this, RegisterActivityFillData.class)
                                                 .putExtra("email", email)
                                                 .putExtra("password", password)); // continue your registration

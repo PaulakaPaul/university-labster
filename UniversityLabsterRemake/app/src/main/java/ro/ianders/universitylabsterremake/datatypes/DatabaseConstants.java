@@ -6,6 +6,9 @@ package ro.ianders.universitylabsterremake.datatypes;
 
 public class DatabaseConstants {
 
+    public static final String EMAIL = "email";
+    public static final String TEMPORARY_EMAIL = "temporaryemail"; // for those who registered but did not filled they data
+
     //courses constants
     public static final String COURSES_NODE = "courses";
     public static final String COURSE_DATA = "courseData";

@@ -180,9 +180,9 @@ public class RegisterActivityFillData extends AppCompatActivity {
 
             Student newStudent = null;
 
-                //getting reference to the registered student from the RegisterActivity
+                //getting reference to the registered student from the RegisterActivity (which is already put in the database)
                 for(Student student : LabsterApplication.getInstace().getStudents())
-                    if(student.getPassword().equals(strings[3]))
+                    if(student.getPassword().equals(strings[3])) // looking for the same password
                         newStudent = student;
 
                 // we know that in this vector are 6 elements because we validate it before(in the right order)
@@ -197,7 +197,7 @@ public class RegisterActivityFillData extends AppCompatActivity {
                     newStudent.getProfile().setLastName(strings[5]);
                 }
 
-                LabsterApplication.getInstace().saveStudent(newStudent, false);  //TODO implement reverse system for when the internet is turning off during the registration ( to have 100% data saved -> database and auth)
+                LabsterApplication.getInstace().saveStudent(newStudent, false);
                 // false cuz at this point a student only with email and password exists
 
             return null;

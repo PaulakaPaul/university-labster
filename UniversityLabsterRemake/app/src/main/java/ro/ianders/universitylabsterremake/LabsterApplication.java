@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import ro.ianders.universitylabsterremake.datatypes.Course;
@@ -46,6 +47,7 @@ public class LabsterApplication extends Application {
     private DatabaseReference databaseReferenceCourses;
     private DatabaseReference databaseReferenceStudents;
     private DatabaseReference databaseReferenceActivityCourses;
+    private DatabaseReference databaseReferenceTemporaryEmail;
 
     //local data from the database
     private Set<Course> courses;
@@ -124,6 +126,7 @@ public class LabsterApplication extends Application {
         databaseReferenceCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.COURSES_NODE);
         databaseReferenceActivityCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.ACTIVITYCOURSES_NODE);
         databaseReferenceStudents = FirebaseDatabase.getInstance().getReference(DatabaseConstants.STUDENTS_NODE);
+        databaseReferenceTemporaryEmail = FirebaseDatabase.getInstance().getReference(DatabaseConstants.TEMPORARY_EMAIL);
 
 
         //creating lists of local data
@@ -395,6 +398,7 @@ public class LabsterApplication extends Application {
         databaseReferenceStudents.child(student.getKey()).child(field).setValue(valueToSave);
     }
 
+
     //saving functions for activitycoures
     public void saveActivityCourse(ActivityCourse activityCourse, boolean generateKey) {
 
@@ -414,6 +418,21 @@ public class LabsterApplication extends Application {
     }
 
 
+    // save field to temporary email
+    // for those who registered but did not filled they data
+    // if we find data there it means we go to the RegisterFillDataActivity
+    public void saveTemporaryEmail(String email) {
+         String newEmail = getKeyEmail(email);
+        databaseReferenceTemporaryEmail.child(newEmail).setValue(newEmail);
+    }
+
+    //remove the temporary email to show the user filled all his data
+    public void removeTemporaryEmail(String email) {
+        String newEmail = getKeyEmail(email);
+        databaseReferenceTemporaryEmail.child(newEmail).removeValue();
+    }
+
+
     // getter for data
     public Set<Course> getCourses() {
         return courses;
@@ -427,7 +446,9 @@ public class LabsterApplication extends Application {
         return students;
     }
 
-
+    public DatabaseReference getDatabaseReferenceTemporaryEmail() {
+        return databaseReferenceTemporaryEmail;
+    }
 
     public String getAcronym(String name) {
 
@@ -462,6 +483,17 @@ public class LabsterApplication extends Application {
         }
 
         return acronym;
+    }
+
+    //temporary email stored form in temporary emails
+    public String getKeyEmail(String email) {
+        String[] emails = email.split("\\.");
+        StringBuilder newEmail = new StringBuilder();
+
+        for(String s : emails)
+            newEmail.append(s);
+
+        return newEmail.toString();
     }
 
 

@@ -18,6 +18,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
+import ro.ianders.universitylabsterremake.datatypes.Student;
+
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener{
 
     private ProgressBar pbLogin;
@@ -29,6 +32,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private FirebaseAuth firebaseAuth;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +40,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        if(firebaseAuth.getCurrentUser() != null) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
+        if(firebaseAuth.getCurrentUser() != null) { //already signed in
+
+            /*
+            if(!currentStudent.equals(DatabaseConstants.TEMPORARY_EMAIL)) {// if he didn't filled all his data in the RegisterActivityFillData go the user to that point
+                startActivity(new Intent(this, RegisterActivityFillData.class));
+                gotoMain = false;
+                finish();
+                } */
+
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                finish();
         }
 
         //getting references
@@ -95,8 +107,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
                         if(task.isSuccessful()) {
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
+
+
+                          /*  if(currentStudent != null) { // if he didn't filled all his data in the RegisterActivityFillData go the user to that point
+                                startActivity(new Intent(LoginActivity.this, RegisterActivityFillData.class));
+                                gotoMain = false;
+                                finish();
+                                }*/
+
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                finish();
+
                         } else {
                             Toast.makeText(LoginActivity.this, "Login declined!", Toast.LENGTH_SHORT).show();
                         }
@@ -107,6 +128,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 });
     }
+
+
 
 
 }
