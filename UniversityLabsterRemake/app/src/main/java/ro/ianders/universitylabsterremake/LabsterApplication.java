@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -58,8 +59,8 @@ public class LabsterApplication extends Application {
     private DatabaseReference databaseReferenceTemporaryEmail;
 
     //local data from the database
-    private Set<Course> courses;
-    private Set<ActivityCourse> activities;
+    private List<Course> courses;
+    private List<ActivityCourse> activities;
     private List<Student> students;
 
     //comparator to sort Date types (using a lambda expression)
@@ -142,14 +143,14 @@ public class LabsterApplication extends Application {
 
 
         //creating lists of local data
-        courses = new HashSet<>();
-        activities = new HashSet<>();
+        courses = new ArrayList<>();
+        activities = new ArrayList<>();
         students = new ArrayList<>();
 
 
         //calling local method to set the listeners for the database
         settingListenersForDataBase();
-
+       // updateDatesFromDatabase();
 
         //dummy set of data : DON'T DELETE IT, IT's USED FOR TESTING
 
@@ -460,12 +461,12 @@ public class LabsterApplication extends Application {
     }
 
 
-    // getter for data
-    public Set<Course> getCourses() {
+    // getters for data
+    public List<Course> getCourses() {
         return courses;
     }
 
-    public Set<ActivityCourse> getActivities() {
+    public List<ActivityCourse> getActivities() {
         return activities;
     }
 
@@ -523,5 +524,54 @@ public class LabsterApplication extends Application {
         return newEmail.toString();
     }
 
+    private void updateDatesFromDatabase() {
+
+        //TODO when courses will be created the date has to be of this type
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date date;
+        Calendar calendar = Calendar.getInstance();
+
+        Date currentDate = Calendar.getInstance().getTime(); //today's date
+        Calendar currentDateCallendar = Calendar.getInstance();
+        currentDateCallendar.setTime(currentDate); // and calendar
+
+        for(Course c : courses) {
+            for (Schedule s : c.getSchedules()) {
+                try {
+
+                    date = formatter.parse(s.getDate());
+                    calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
+
+                    while (currentDateCallendar.before(calendar)) { //we add the course step until the date is updated
+                        calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getCourseStep());
+                    }
+
+                    date = calendar.getTime(); // we save the date as a string back to the schedule
+                    s.setDate(formatter.format(date));
+
+                } catch (ParseException e) {
+                    Log.e("PARSEEXCEPTION", "VALIDATE YOUR DATE TYPE");
+                }
+
+            }
+
+            // after changing the schedules we save them again to the database
+            saveFieldToCourse(c, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES, c.getSchedules());
+        }
+
+
+
+    }
+
+    public static String generateTodayDate() {
+        //get today's date to show only the activities from today
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/YYYY");
+        String todayDate = dateformat.format(cal.getTime());
+        //TODO delete this
+        Log.e("TODAY's DATE", todayDate);
+        return todayDate;
+    }
 
 }

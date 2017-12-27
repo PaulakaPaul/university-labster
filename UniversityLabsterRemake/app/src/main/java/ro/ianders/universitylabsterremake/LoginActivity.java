@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
 
-        //TODO make a logic to go to Main or RegisterFill activities if the user is already logged in 
+        //TODO make a logic to go to Main or RegisterFill activities if the user is already logged in
         /*FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if(firebaseUser != null) { //already signed in
@@ -192,9 +192,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN_GOOGLE) {
 
-            pbLogin.setVisibility(View.VISIBLE); // we want to see only the progress bar
-            svLogin.setVisibility(View.GONE);
-
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 // Google Sign In was successful, authenticate with Firebase
@@ -203,9 +200,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             } catch (ApiException e) {
                 // Google Sign In failed, update UI appropriately
                 Toast.makeText(this, "API failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            } finally {
-                pbLogin.setVisibility(View.GONE);
-                svLogin.setVisibility(View.VISIBLE); //process if finished
             }
         }
 
@@ -325,6 +319,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     // [START auth_with_google]
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
 
+        pbLogin.setVisibility(View.VISIBLE); // we want to see only the progress bar
+        svLogin.setVisibility(View.GONE);
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential)
@@ -373,6 +369,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                     }
                 });
+
+        pbLogin.setVisibility(View.GONE);
+        svLogin.setVisibility(View.VISIBLE); //process if finished
     }
     // [END auth_with_google]
 

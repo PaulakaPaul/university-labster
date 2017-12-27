@@ -43,8 +43,9 @@
             <ImageView
                 android:id="@+id/ivLogoLogin"
                 android:layout_width="match_parent"
-                android:contentDescription="@string/logo"
                 android:layout_height="125dp"
+                android:contentDescription="@string/logo"
+                android:scaleType="fitCenter"
                 android:layout_marginBottom="30dp"
                 app:srcCompat="@mipmap/uptlogo" />
 

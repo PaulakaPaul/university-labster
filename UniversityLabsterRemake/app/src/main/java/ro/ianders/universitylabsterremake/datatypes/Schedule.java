@@ -37,4 +37,8 @@ public class Schedule {
     public int getCourseStep() {
         return courseStep;
     }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 }

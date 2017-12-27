@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,23 +23,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import ro.ianders.universitylabsterremake.datatypes.Course;
-import ro.ianders.universitylabsterremake.datatypes.CourseData;
-import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
-import ro.ianders.universitylabsterremake.datatypes.Professor;
-import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
+import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -60,9 +48,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         clickListenerCounter = 3;
-
-
-        findViewById(R.id.button2).setOnClickListener(this);
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -132,10 +117,18 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+
         if (id == R.id.nav_camera) {
 
         } else if (id == R.id.nav_gallery) {
 
+            CoursesFragment coursesFragment = new CoursesFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragmentPlaceHolder, coursesFragment)
+                    .addToBackStack(null)
+                    .commit();
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -185,7 +178,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void checkForEmptyUserData() {
+    private void checkForEmptyUserData() { //send the user to fill his personal data if leaks on logic occur and data is still empty
 
         if(clickListenerCounter > 0) {
             Log.e("clickListenerCounter: ", clickListenerCounter + "");
