@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 public class Student {
 
+    private String userUID; //to recognize current user
     private String key;
     private String faculty;
     private String section;
@@ -18,7 +19,8 @@ public class Student {
 
     public Student() {}
 
-    public Student(String key, String faculty, String section, int year, String username, String password, Profile profile) {
+    public Student(String userUID, String key, String faculty, String section, int year, String username, String password, Profile profile) {
+        this.userUID = userUID;
         this.key = key;
         this.faculty = faculty;
         this.section = section;
@@ -28,7 +30,8 @@ public class Student {
         this.profile = profile;
     }
 
-    public Student(String key, String faculty, String section, int year, String password, Profile profile) { //username is not mandatory
+    public Student(String userUID, String key, String faculty, String section, int year, String password, Profile profile) { //username is not mandatory
+        this.userUID = userUID;
         this.key = key;
         this.faculty = faculty;
         this.section = section;
@@ -38,7 +41,8 @@ public class Student {
         this.username = null;
     }
 
-    public Student(String faculty, String section, int year, String username, String password, Profile profile) {
+    public Student(String userUID, String faculty, String section, int year, String username, String password, Profile profile) {
+        this.userUID = userUID;
         this.faculty = faculty;
         this.section = section;
         this.year = year;
@@ -47,7 +51,8 @@ public class Student {
         this.profile = profile;
     }
 
-    public Student(String faculty, String section, int year, String password, Profile profile) {
+    public Student(String userUID, String faculty, String section, int year, String password, Profile profile) {
+        this.userUID = userUID;
         this.faculty = faculty;
         this.section = section;
         this.year = year;
@@ -55,13 +60,27 @@ public class Student {
         this.profile = profile;
     }
 
-    public Student(String email, String password) {
+    public Student(String userUID, String email, String password) {
+        this.userUID = userUID;
         this.password = password;
+        this.profile = new Profile(email);
+    }
+
+    public Student(String userUID, String email) {
+        this.userUID = userUID;
         this.profile = new Profile(email);
     }
 
     public String getFaculty() {
         return faculty;
+    }
+
+    public String getUserUID() {
+        return userUID;
+    }
+
+    public void setUserUID(String userUID) {
+        this.userUID = userUID;
     }
 
     public String getSection() {
@@ -121,6 +140,7 @@ public class Student {
         HashMap<String, Object> student = new HashMap<>();
 
         student.put(DatabaseConstants.STUDENT_KEY, key);
+        student.put(DatabaseConstants.STUDENT_UID, userUID);
         student.put(DatabaseConstants.STUDENT_FACULTY, faculty);
         student.put(DatabaseConstants.STUDENT_PASSWORD, password);
         student.put(DatabaseConstants.STUDENT_PROFILE, profile);

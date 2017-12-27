@@ -26,6 +26,7 @@ public class DatabaseConstants {
     public static final String STUDENT_YEAR = "year";
     public static final String STUDENT_SECTION = "section";
     public static final String STUDENT_KEY = "key";
+    public static final String STUDENT_UID = "userUID";
 
 
     //activity courses constants

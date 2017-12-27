@@ -24,6 +24,9 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -61,13 +64,6 @@ public class RegisterActivityFillData extends AppCompatActivity {
         btnSaveData = findViewById(R.id.btnSaveData);
 
         askForPermissionContacts(); // implemented in this activity
-
-
-        //TODO save first step to server and after update fill data
-        //TODO make login activity
-        //TODO check if the second step is not completed to open the app at it
-        //TODO login with facebook and google
-
 
 
         //save the user
@@ -143,8 +139,6 @@ public class RegisterActivityFillData extends AppCompatActivity {
 
     private void saveUser() {
 
-        String email = getIntent().getStringExtra("email"); // data from the first step
-        String password = getIntent().getStringExtra("password"); // data from the first step
 
         String firstName = etFirstName.getText().toString().trim();
         String lastName = etLastName.getText().toString().trim();
@@ -159,7 +153,7 @@ public class RegisterActivityFillData extends AppCompatActivity {
         }
 
         // if data is filled we proceed saving the user
-        new SaveDataAsync().execute(faculty, section, yearString, password, firstName, lastName, email); // we start a background thread to save our data
+        new SaveDataAsync().execute(faculty, section, yearString, firstName, lastName); // we start a background thread to save our data
     }
 
 
@@ -179,26 +173,30 @@ public class RegisterActivityFillData extends AppCompatActivity {
         protected Void doInBackground(String... strings) {
 
             Student newStudent = null;
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+            if(currentUser != null) {
 
                 //getting reference to the registered student from the RegisterActivity (which is already put in the database)
-                for(Student student : LabsterApplication.getInstace().getStudents())
-                    if(student.getPassword().equals(strings[3])) // looking for the same password
+                for (Student student : LabsterApplication.getInstace().getStudents())
+                    if (student.getUserUID().equals(currentUser.getUid())) // looking for the same uid
                         newStudent = student;
 
                 // we know that in this vector are 6 elements because we validate it before(in the right order)
                 int year = Integer.parseInt(strings[2]);
 
-                //setting other fields to the studentp
-                if(newStudent != null) {
+                //setting other fields to the student
+                if (newStudent != null) {
                     newStudent.setFaculty(strings[0]);
                     newStudent.setSection(strings[1]);
                     newStudent.setYear(year);
-                    newStudent.getProfile().setFirstName(strings[4]);
-                    newStudent.getProfile().setLastName(strings[5]);
+                    newStudent.getProfile().setFirstName(strings[3]);
+                    newStudent.getProfile().setLastName(strings[4]);
                 }
 
                 LabsterApplication.getInstace().saveStudent(newStudent, false);
                 // false cuz at this point a student only with email and password exists
+            }
 
             return null;
         }

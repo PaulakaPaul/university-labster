@@ -1,8 +1,14 @@
 package ro.ianders.universitylabsterremake;
 
 import android.app.Application;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Base64;
 import android.util.Log;
 
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -10,6 +16,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -121,6 +129,10 @@ public class LabsterApplication extends Application {
         super.onCreate();
 
         instace = this; // get the singleton instance
+
+        //login Facebook initializations
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
 
         //getting references from the database
         databaseReferenceCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.COURSES_NODE);
@@ -239,6 +251,21 @@ public class LabsterApplication extends Application {
         */
 
 
+        /** USED FOR GETTING HASH KEY **/
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(
+                    "ro.ianders.universitylabsterremake",
+                    PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.e("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+
+        } catch (NoSuchAlgorithmException e) {
+
+        } /** TILL HERE**/
     }
 
 

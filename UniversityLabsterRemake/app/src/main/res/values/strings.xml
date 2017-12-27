@@ -6,7 +6,13 @@
 
     <string name="action_settings">Settings</string>
 
-    <!-- String to label the activities -->
+    <!-- Strings used for facebook/google login -->
+    <string name="facebook_app_id">1749747468378299</string>
+    <string name="fb_login_protocol_scheme">fb1749747468378299</string>
+    <string name="continue_with_facebook">Facebook</string>
+    <string name="continue_with_goole">Google</string>
+
+    <!-- Strings to label the activities -->
     <string name="title_activity_register">Sign up</string>
     <string name="title_activity_login">Login</string>
 
@@ -25,4 +31,8 @@
     <string name="fill_the_boxes_to_proceed">Fill the boxes to proceed:</string>
     <string name="login">LOGIN</string>
     <string name="logo">Logo</string>
+    <string name="continue_with">Continue with:</string>
+
+
+
 </resources>

@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import ro.ianders.universitylabsterremake.datatypes.Student;
 
@@ -108,12 +109,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         if(task.isSuccessful()) { // if everything is ok we proceed send the user to fill he's other profile data
                             Toast.makeText(RegisterActivity.this, "Registered Succesfully!", Toast.LENGTH_SHORT).show();
 
-                            Student newStudent = new Student(email, password);
+                            FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                            Student currentStudent;
 
-                            LabsterApplication.getInstace().saveStudent(newStudent, true); //first save student to database
-                            startActivity(new Intent(RegisterActivity.this, RegisterActivityFillData.class)
-                                                .putExtra("email", email)
-                                                .putExtra("password", password)); // continue your registration
+                            if(currentUser != null) {
+                                currentStudent = new Student(currentUser.getUid(), currentUser.getEmail(), password);
+                                LabsterApplication.getInstace().saveStudent(currentStudent, true); //first save student to database
+                                startActivity(new Intent(RegisterActivity.this, RegisterActivityFillData.class));
+                            }
+
                         } else {
                             Toast.makeText(RegisterActivity.this, "Registration failed... Please try again !", Toast.LENGTH_SHORT).show();
                         }
