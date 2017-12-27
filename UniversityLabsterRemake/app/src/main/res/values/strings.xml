@@ -1,8 +1,38 @@
 <resources>
-    <string name="app_name">University Labster Remake</string>
+    <string name="app_name">University Labster</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- Strings used for facebook/google login -->
+    <string name="facebook_app_id">1749747468378299</string>
+    <string name="fb_login_protocol_scheme">fb1749747468378299</string>
+    <string name="continue_with_facebook">Facebook</string>
+    <string name="continue_with_goole">Google</string>
+
+    <!-- Strings to label the activities -->
+    <string name="title_activity_register">Sign up</string>
+    <string name="title_activity_login">Login</string>
+
+    <!-- Strings related to registration and login-->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password - more than 6 characters</string>
+    <string name="register">REGISTER</string>
+    <string name="already_registered_sign_in_here">Already Registered? Sign in here.</string>
+    <string name="go_to_sign_up">Not having a account ? Sign up here.</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="faculty">Faculty</string>
+    <string name="section">Section</string>
+    <string name="year_of_college">Year of College</string>
+    <string name="save_data">Save Data</string>
+    <string name="fill_the_boxes_to_proceed">Fill the boxes to proceed:</string>
+    <string name="login">LOGIN</string>
+    <string name="logo">Logo</string>
+    <string name="continue_with">Continue with:</string>
+
+
+
 </resources>

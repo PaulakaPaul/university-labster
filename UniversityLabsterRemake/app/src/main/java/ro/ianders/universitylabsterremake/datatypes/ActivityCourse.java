@@ -12,6 +12,11 @@ public class ActivityCourse extends Course {
     private String type; //laboratory or seminar
 
     //same data type as a Course but it's easier to manage data like this
+    public ActivityCourse(String key, String type, CourseData courseData, List<Professor> professors, List<String> checkins, List<Schedule> schedules) {
+        super(key, courseData, professors, checkins, schedules);
+        this.type = type;
+    }
+
     public ActivityCourse(String type, CourseData courseData, List<Professor> professors, List<String> checkins, List<Schedule> schedules) {
         super(courseData, professors, checkins, schedules);
         this.type = type;
@@ -28,6 +33,10 @@ public class ActivityCourse extends Course {
         // putting the data with the correct key (course ->courseData ; activitycourse -> activitycourseData)
         activityCourses.remove(DatabaseConstants.COURSE_DATA);
         activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_DATA, getCourseData());
+
+        // putting the data with the correct key
+        activityCourses.remove(DatabaseConstants.COURSE_KEY);
+        activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_KEY, getKey());
 
         return activityCourses;
     }

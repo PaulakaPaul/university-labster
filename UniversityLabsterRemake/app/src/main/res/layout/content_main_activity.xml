@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ro.ianders.universitylabsterremake.MainActivityActivity"
+    tools:context="ro.ianders.universitylabsterremake.MainActivity"
     tools:showIn="@layout/app_bar_main_activity">
 
     <TextView
@@ -16,5 +16,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button"
+        tools:layout_editor_absoluteX="99dp"
+        tools:layout_editor_absoluteY="310dp" />
 
 </android.support.constraint.ConstraintLayout>
