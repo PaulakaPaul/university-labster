@@ -524,7 +524,7 @@ public class LabsterApplication extends Application {
         return newEmail.toString();
     }
 
-    private void updateDatesFromDatabase() {
+    public void updateDatesFromDatabase() {
 
         //TODO when courses will be created the date has to be of this type
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -543,9 +543,10 @@ public class LabsterApplication extends Application {
                     date = formatter.parse(s.getDate());
                     calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
 
-                    while (currentDateCallendar.before(calendar)) { //we add the course step until the date is updated
-                        calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getCourseStep());
-                    }
+                    if(!formatter.format(currentDate).equals(s.getDate())) // only if it is not today's date ( we compare it as a String cuz it's easier)
+                        while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
+                            calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getCourseStep());
+                        }
 
                     date = calendar.getTime(); // we save the date as a string back to the schedule
                     s.setDate(formatter.format(date));
@@ -557,10 +558,34 @@ public class LabsterApplication extends Application {
             }
 
             // after changing the schedules we save them again to the database
-            saveFieldToCourse(c, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES, c.getSchedules());
+            saveFieldToCourse(c, DatabaseConstants.COURSE_SCHEDULES, c.getSchedules());
         }
 
 
+        for(ActivityCourse ac : activities) {
+            for (Schedule s : ac.getSchedules()) {
+                try {
+
+                    date = formatter.parse(s.getDate());
+                    calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
+
+                    if(!formatter.format(currentDate).equals(s.getDate())) // only if it is not today's date ( we compare it as a String cuz it's easier)
+                        while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
+                            calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getCourseStep());
+                        }
+
+                    date = calendar.getTime(); // we save the date as a string back to the schedule
+                    s.setDate(formatter.format(date));
+
+                } catch (ParseException e) {
+                    Log.e("PARSEEXCEPTION", "VALIDATE YOUR DATE TYPE");
+                }
+
+            }
+
+            // after changing the schedules we save them again to the database
+            saveFieldToActivityCourse(ac, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES, ac.getSchedules());
+        }
 
     }
 
