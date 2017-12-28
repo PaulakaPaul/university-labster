@@ -1,28 +1,18 @@
 package ro.ianders.universitylabsterremake.mainactivityfragments;
 
 import android.graphics.drawable.GradientDrawable;
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 
-import ro.ianders.universitylabsterremake.LabsterApplication;
 import ro.ianders.universitylabsterremake.R;
-import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
-import ro.ianders.universitylabsterremake.datatypes.Course;
-import ro.ianders.universitylabsterremake.datatypes.Schedule;
+import ro.ianders.universitylabsterremake.datatypes.ListData;
 
 /**
  * Created by paul.iusztin on 27.12.2017.
@@ -30,11 +20,13 @@ import ro.ianders.universitylabsterremake.datatypes.Schedule;
 
 public class CoursesListAdapter extends RecyclerView.Adapter<CoursesListAdapter.CourseListHolder>{ //adapter for the courses list
 
-    private ArrayList<CoursesFragment.ListData> dataToShow; //used to fill data only with today's date
+    private ArrayList<ListData> dataToShow; //used to fill data only with today's date
+    private CoursesFragment.CourseOnItemClickListener listener; // we have to change activities which can be implemented just from outside
 
 
-    CoursesListAdapter(ArrayList<CoursesFragment.ListData> dataToShow) {
+    CoursesListAdapter(ArrayList<ListData> dataToShow, CoursesFragment.CourseOnItemClickListener listener) {
         this.dataToShow = dataToShow;
+        this.listener = listener;
     }
 
     @Override
@@ -63,6 +55,8 @@ public class CoursesListAdapter extends RecyclerView.Adapter<CoursesListAdapter.
         private TextView tvName;
         private LinearLayout linItemHolder;
 
+        private ListData currentListData; // we need this for the onClick event
+
         CourseListHolder(View itemView) {
             super(itemView);
             ivType = itemView.findViewById(R.id.ivType);
@@ -74,19 +68,24 @@ public class CoursesListAdapter extends RecyclerView.Adapter<CoursesListAdapter.
 
         void bindView(int position) {
 
-            ((GradientDrawable) linItemHolder.getBackground()).setColor(dataToShow.get(position).getColor());
-            ivType.setImageResource(dataToShow.get(position).getType());
+            currentListData = dataToShow.get(position);
+
+            ((GradientDrawable) linItemHolder.getBackground()).setColor(dataToShow.get(position).getColor()); //setting background within the drawable set
+            // as background -> we keep the drawable and change only the colour
+            ivType.setImageResource(dataToShow.get(position).getType());  //setting picture
+
             String schedule = dataToShow.get(position).getSchedule();
             if((schedule.charAt(0) == '0' ) &&  schedule.charAt(1) !=  '0' ) //remove the '0'es added to compare the schedules ( 8:00 -> 08:00)
                 schedule = dataToShow.get(position).getSchedule().substring(1, schedule.length());
-            tvSchedule.setText(schedule);
-            tvName.setText(dataToShow.get(position).getName());
+            tvSchedule.setText(schedule); //setting schedule
+
+            tvName.setText(dataToShow.get(position).getName()); //setting name
 
         }
 
         @Override
         public void onClick(View view) {
-            Log.e("CLICKED", "I WAS CLICKED");
+            listener.onItemClick(currentListData);
         }
 
     }

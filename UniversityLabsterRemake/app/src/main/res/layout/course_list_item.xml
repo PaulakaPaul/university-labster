@@ -13,30 +13,45 @@
         android:id="@+id/ivType"
         android:layout_width="0dp"
         android:layout_height="50dp"
+        android:layout_gravity="center_vertical"
         android:layout_margin="8dp"
         android:layout_weight="1"
+        android:foregroundGravity="center_vertical"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/course" />
 
-    <TextView
-        android:id="@+id/tvSchedule"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout_weight="2"
-        android:text="10:00 : 12:00"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_margin="6dp"
+        android:layout_height="match_parent"
         android:layout_weight="3"
-        android:text="Programarea Orientata pe Obiecte"
-        android:textAlignment="center"
-        android:textSize="18sp" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvSchedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|start"
+            android:layout_margin="1dp"
+            android:foregroundGravity="center_horizontal"
+            android:text="10:00 : 12:00"
+            android:textAlignment="center"
+            android:textColor="#95000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|start"
+            android:layout_margin="1dp"
+            android:foregroundGravity="center_horizontal"
+            android:text="Programarea Orientata pe Obiecte"
+            android:textAlignment="center"
+            android:textColor="#95000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </LinearLayout>

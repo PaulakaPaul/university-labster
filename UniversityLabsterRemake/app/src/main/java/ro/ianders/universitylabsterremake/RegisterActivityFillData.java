@@ -1,7 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -32,8 +31,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import ro.ianders.universitylabsterremake.datatypes.LabsterConstants;
-import ro.ianders.universitylabsterremake.datatypes.Profile;
 import ro.ianders.universitylabsterremake.datatypes.Student;
 
 public class RegisterActivityFillData extends AppCompatActivity {

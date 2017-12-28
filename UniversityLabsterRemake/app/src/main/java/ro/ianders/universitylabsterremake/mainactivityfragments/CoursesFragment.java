@@ -1,27 +1,25 @@
 package ro.ianders.universitylabsterremake.mainactivityfragments;
 
 
+import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 
+import ro.ianders.universitylabsterremake.datatypes.ListData;
+import ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments.CourseActivity;
 import ro.ianders.universitylabsterremake.LabsterApplication;
 import ro.ianders.universitylabsterremake.R;
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
@@ -68,7 +66,14 @@ public class CoursesFragment extends Fragment {
 
         lvRecyclerCourse = view.findViewById(R.id.lvRecyclerCourses);
 
-        RecyclerView.Adapter adapter = new CoursesListAdapter(dataToShow);
+        CourseOnItemClickListener listener = new CourseOnItemClickListener() { // we use this listener to go to a new CourseActivity when a item is clicked
+            @Override
+            public void onItemClick(ListData listData) {
+                    startActivity(new Intent(getContext(), CourseActivity.class).putExtra("data", listData));
+                }
+        };
+
+        RecyclerView.Adapter adapter = new CoursesListAdapter(dataToShow, listener);
         lvRecyclerCourse.setAdapter(adapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         lvRecyclerCourse.setLayoutManager(layoutManager);
@@ -122,39 +127,15 @@ public class CoursesFragment extends Fragment {
                 }
         }
 
-        Collections.sort(dataToShow, (ld1, ld2) -> ld1.schedule.compareTo(ld2.schedule)); // we compare it lexicographically by the first number
+        Collections.sort(dataToShow, (ld1, ld2) -> ld1.getSchedule().compareTo(ld2.getSchedule())); // we compare it lexicographically by the first number
         // ( 01:00 < 10:00 ) ; (08:00 < 22:00)
     }
 
 
-    class ListData {
-        private int type; //resource for photo to show
-        private int color; //background color
-        private String schedule;
-        private String name;
 
-        private ListData(int type, int color, String schedule, String name) {
-            this.type = type;
-            this.color = color;
-            this.schedule = schedule;
-            this.name = name;
-        }
 
-        public int getType() {
-            return type;
-        }
-
-        public String getSchedule() {
-            return schedule;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getColor() {
-            return color;
-        }
+    interface CourseOnItemClickListener { //listener for the CoursesListAdapter
+        void onItemClick(ListData listData);
     }
 
 }

@@ -6,8 +6,6 @@ package ro.ianders.universitylabsterremake.datatypes;
 
 public class DatabaseConstants {
 
-    public static final String EMAIL = "email";
-    public static final String TEMPORARY_EMAIL = "temporaryemail"; // for those who registered but did not filled they data
 
     //courses constants
     public static final String COURSES_NODE = "courses";
@@ -37,5 +35,12 @@ public class DatabaseConstants {
     public static final String ACTIVITYCOURSE_SCHEDULES = "schedules";
     public static final String ACTIVITYCOURSE_CHECKINS = "checkins";
     public static final String ACTIVITYCOURSE_KEY = "key";
+
+    //schedule constants
+    public static final String SCHEDULE_COURSESTEP = "step";
+    public static final String SCHEDULE_DATE= "date";
+    public static final String SCHEDULE_ENDTIME = "endTime";
+    public static final String SCHEDULE_STARTTIME = "startTime";
+    public static final String SCHEDULE_CHECKINS = "checkins";
 
 }

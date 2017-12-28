@@ -12,13 +12,13 @@ public class ActivityCourse extends Course {
     private String type; //laboratory or seminar
 
     //same data type as a Course but it's easier to manage data like this
-    public ActivityCourse(String key, String type, CourseData courseData, List<Professor> professors, List<String> checkins, List<Schedule> schedules) {
-        super(key, courseData, professors, checkins, schedules);
+    public ActivityCourse(String key, String type, CourseData courseData, List<Professor> professors, List<Schedule> schedules) {
+        super(key, courseData, professors, schedules);
         this.type = type;
     }
 
-    public ActivityCourse(String type, CourseData courseData, List<Professor> professors, List<String> checkins, List<Schedule> schedules) {
-        super(courseData, professors, checkins, schedules);
+    public ActivityCourse(String type, CourseData courseData, List<Professor> professors, List<Schedule> schedules) {
+        super(courseData, professors, schedules);
         this.type = type;
     }
 
@@ -27,16 +27,13 @@ public class ActivityCourse extends Course {
     }
 
     public HashMap<String, Object> toMap() {
-        HashMap<String, Object> activityCourses = super.toMap();
-        activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_TYPE, type); // putting extra information
+        HashMap<String, Object> activityCourses = new HashMap<>();
 
-        // putting the data with the correct key (course ->courseData ; activitycourse -> activitycourseData)
-        activityCourses.remove(DatabaseConstants.COURSE_DATA);
+        activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_TYPE, type);
         activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_DATA, getCourseData());
-
-        // putting the data with the correct key
-        activityCourses.remove(DatabaseConstants.COURSE_KEY);
         activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_KEY, getKey());
+        activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_PROFESSORS, getProfessors());
+        activityCourses.put(DatabaseConstants.ACTIVITYCOURSE_SCHEDULES, getSchedules());
 
         return activityCourses;
     }

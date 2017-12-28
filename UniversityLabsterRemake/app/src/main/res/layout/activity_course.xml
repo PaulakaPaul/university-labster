@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gridCourseMain"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="2"
+    android:rowCount="10"
+    android:foregroundGravity="fill"
+    android:orientation="vertical"
+    tools:context="ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments.CourseActivity">
+
+
+    <ImageView
+        android:id="@+id/ivType"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_column="0"
+        android:layout_columnWeight="1"
+        android:layout_gravity="fill"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_row="0"
+        android:background="@drawable/stroke_layouts"
+        android:layout_rowSpan="2"
+        app:srcCompat="@drawable/laboratory" />
+
+    <TextView
+        android:id="@+id/tvFullName"
+        android:layout_column="1"
+        android:layout_columnWeight="4"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_row="0"
+        android:layout_rowSpan="2"
+        android:background="@drawable/stroke_layouts"
+        android:foregroundGravity="center_vertical"
+        android:orientation="vertical"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold|italic" />
+
+    <TextView
+        android:id="@+id/tvHour"
+        android:layout_column="0"
+        android:layout_columnWeight="1"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_row="3"
+        android:background="@drawable/stroke_layouts"
+        android:foregroundGravity="center_vertical"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textColor="#000000"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvProfessorNames"
+        android:layout_column="1"
+        android:layout_columnWeight="4"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_row="3"
+        android:background="@drawable/stroke_layouts"
+        android:foregroundGravity="center_vertical"
+        android:padding="10dp"
+        android:text="TextView"
+        android:textAllCaps="false"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/tvLocation"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="5"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_row="4"
+        android:background="@drawable/stroke_layouts"
+        android:foregroundGravity="center_vertical"
+        android:text="TextView"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:textStyle="italic" />
+
+    <LinearLayout
+        android:id="@+id/linCheckins"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:layout_columnWeight="4"
+        android:layout_gravity="fill"
+        android:layout_marginBottom="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:layout_row="5"
+        android:layout_rowSpan="5"
+        android:orientation="vertical">
+
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabCourse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:elevation="6dp"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/pagerCourse"
+            android:background="@drawable/stroke_layouts"
+            android:backgroundTint="@color/cardview_light_background"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            />
+
+    </LinearLayout>
+
+</GridLayout>
