@@ -86,13 +86,15 @@ public class CoursesFragment extends Fragment {
         ListData listData;
         String startHour;
         String finishHour;
-        String name;
+        String name = "";
 
         // we show only the course from today and with the same section and year with the student
-        // we check only the section cuz if the section is not equal -> the faculty is not the same
+        // we check the year, section and faculty to be the same
 
         for (Course c : LabsterApplication.getInstace().getCourses()) {
-            if ((c.getCourseData().getYear() == currentStudent.getYear()) && (c.getCourseData().getSection().equals(currentStudent.getSection())))
+            if ((c.getCourseData().getYear() == currentStudent.getYear()) &&
+                    (c.getCourseData().getFaculty()).equals(currentStudent.getFaculty()) &&
+                    (c.getCourseData().getSection().equals(currentStudent.getSection())))
                 for (Schedule s : c.getSchedules()) {
                     if (todayDate.equals(s.getDate())) {
                         startHour = s.getStartTime();

@@ -11,4 +11,6 @@ public class LabsterConstants {
         public static final String TAB_COURSE_CHECKINS = "Check-ins";
         public static final String TAB_COURSE_NOTES = "Notes";
 
+        public static final String PAGER_ADAPTER_CHECKINS_SEND_DATA_KEY = "checkins";
+        public static final String PAGER_ADAPTER_NOTES_SEND_DATA_KEY = "notes";
 }

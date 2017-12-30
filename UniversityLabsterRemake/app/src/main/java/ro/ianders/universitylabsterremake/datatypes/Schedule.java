@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake.datatypes;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +22,11 @@ public class Schedule {
         this.startTime = startTime;
         this.endTime = endTime;
         this.step = step;
+
+        if(checkins != null) //in case there are no check-ins in the database
         this.checkins = checkins;
+        else
+        this.checkins = new ArrayList<>();
     }
 
     public String getDate() {
@@ -56,10 +61,15 @@ public class Schedule {
         checkins.remove(person);
     }
 
+    public void setCheckins(List<String> checkins) {
+        this.checkins = checkins;
+    }
+
     public String toString() {
         String r = "";
-        for(String s: checkins)
-            r += s + " ";
+        if(checkins != null)
+            for(String s: checkins)
+                r += s + " ";
         return r;
     }
 }

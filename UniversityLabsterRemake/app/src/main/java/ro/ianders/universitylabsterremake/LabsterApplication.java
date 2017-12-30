@@ -258,7 +258,7 @@ public class LabsterApplication extends Application {
                     List<Professor> professors = dataSnapshot1.child(DatabaseConstants.COURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
                     List<Schedule> schedules = new ArrayList<>();
 
-                    for(DataSnapshot schedule : dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_SCHEDULES).getChildren()) {
+                    for(DataSnapshot schedule : dataSnapshot1.child(DatabaseConstants.COURSE_SCHEDULES).getChildren()) {
                         Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
                         String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
                         String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
@@ -279,7 +279,7 @@ public class LabsterApplication extends Application {
                     courses.add(c);
 
                     // TODO delete debugging info log.e
-                    Log.e("tag", c.toString());
+                    //Log.e("tag", c.toString());
 
                 }
 
@@ -517,6 +517,9 @@ public class LabsterApplication extends Application {
 
                     date = calendar.getTime(); // we save the date as a string back to the schedule
                     s.setDate(formatter.format(date));
+
+                    if(s.getCheckins() == null) // so we won't save null to database cuz it will crush
+                        s.setCheckins(new ArrayList<>());
 
                 } catch (ParseException e) {
                     Log.e("PARSEEXCEPTION", "VALIDATE YOUR DATE TYPE");

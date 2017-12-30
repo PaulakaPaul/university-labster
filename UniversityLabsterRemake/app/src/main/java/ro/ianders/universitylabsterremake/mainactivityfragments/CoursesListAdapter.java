@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import ro.ianders.universitylabsterremake.LabsterApplication;
 import ro.ianders.universitylabsterremake.R;
 import ro.ianders.universitylabsterremake.datatypes.ListData;
 
@@ -79,7 +80,8 @@ public class CoursesListAdapter extends RecyclerView.Adapter<CoursesListAdapter.
                 schedule = dataToShow.get(position).getSchedule().substring(1, schedule.length());
             tvSchedule.setText(schedule); //setting schedule
 
-            tvName.setText(dataToShow.get(position).getName()); //setting name
+            String name = LabsterApplication.getAcronym(dataToShow.get(position).getName());
+            tvName.setText(name); //setting name
 
         }
 
