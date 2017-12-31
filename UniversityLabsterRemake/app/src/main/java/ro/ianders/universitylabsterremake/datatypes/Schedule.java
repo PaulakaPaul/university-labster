@@ -29,6 +29,12 @@ public class Schedule {
         this.checkins = new ArrayList<>();
     }
 
+    public Schedule(String date, String startTime, String endTime) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
     public String getDate() {
         return date;
     }
@@ -71,5 +77,12 @@ public class Schedule {
             for(String s: checkins)
                 r += s + " ";
         return r;
+    }
+
+    public boolean equals(Object o) {
+        return (o instanceof Schedule) ? (
+                   ((Schedule) o).startTime.equals(this.startTime) & ((Schedule) o).endTime.equals(this.endTime) &
+                           ((Schedule) o).date.equals(this.date)
+                ) : false ;
     }
 }

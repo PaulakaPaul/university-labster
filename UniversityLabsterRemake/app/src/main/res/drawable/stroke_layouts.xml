@@ -3,7 +3,8 @@
     android:elevation="100dp">
 
     <gradient
-        android:centerColor="#FFFFFF"/>
+        android:startColor="#FFFFFF"
+        android:angle="45"/>
 
     <stroke
         android:color="#50000000"

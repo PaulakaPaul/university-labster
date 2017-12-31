@@ -31,6 +31,9 @@ import ro.ianders.universitylabsterremake.datatypes.Course;
 import ro.ianders.universitylabsterremake.datatypes.CourseData;
 import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
+import ro.ianders.universitylabsterremake.datatypes.Message;
+import ro.ianders.universitylabsterremake.datatypes.MessagesCourse;
+import ro.ianders.universitylabsterremake.datatypes.MessagesPerSchedule;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
@@ -48,11 +51,13 @@ public class LabsterApplication extends Application {
     private DatabaseReference databaseReferenceCourses;
     private DatabaseReference databaseReferenceStudents;
     private DatabaseReference databaseReferenceActivityCourses;
+    private DatabaseReference databaseReferenceMessages;
 
     //local data from the database
     private List<Course> courses;
     private List<ActivityCourse> activities;
     private List<Student> students;
+    private List<MessagesCourse> messages;
 
     //comparator to sort Date types (using a lambda expression)
     private Comparator<Schedule> byDateComparator = (d1, d2) -> {
@@ -130,12 +135,14 @@ public class LabsterApplication extends Application {
         databaseReferenceCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.COURSES_NODE);
         databaseReferenceActivityCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.ACTIVITYCOURSES_NODE);
         databaseReferenceStudents = FirebaseDatabase.getInstance().getReference(DatabaseConstants.STUDENTS_NODE);
+        databaseReferenceMessages = FirebaseDatabase.getInstance().getReference(DatabaseConstants.NOTES_NODE);
 
 
         //creating lists of local data
         courses = new ArrayList<>();
         activities = new ArrayList<>();
         students = new ArrayList<>();
+        messages = new ArrayList<>();
 
         //calling local method to set the listeners for the database
         settingListenersForDataBase();
@@ -355,7 +362,37 @@ public class LabsterApplication extends Application {
             }
         });
 
+        databaseReferenceMessages.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                messages.clear();
+
+                for(DataSnapshot m : dataSnapshot.getChildren()) {
+
+                    String key = m.child(DatabaseConstants.NOTES_KEY).getValue(String.class);
+                    MessagesCourse messagesCourse = new MessagesCourse(key);
+
+                    for(DataSnapshot notes : dataSnapshot.child(DatabaseConstants.NOTES_MESSAGES_PER_SCHEDULE).getChildren()) {
+
+                        int indexOfSchedule = notes.child(DatabaseConstants.NOTES_INDEX_OF_SCHEDULE).getValue(Integer.class);
+                        List<Message> notesOfSchedule = notes.child(DatabaseConstants.NOTES_OF_SCHEDULE).getValue(new GenericTypeIndicator<List<Message>>(){});
+
+                        MessagesPerSchedule messagesPerSchedule = new MessagesPerSchedule(notesOfSchedule, indexOfSchedule);
+                        messagesCourse.addMessagePerSchedule(messagesPerSchedule);
+                    }
+
+                    messages.add(messagesCourse);
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -429,6 +466,16 @@ public class LabsterApplication extends Application {
         databaseReferenceActivityCourses.child(activityCourse.getKey()).child(field).setValue(valueToSave);
     }
 
+    //functions for messages
+    public void saveMessagesToSchedule(MessagesCourse messagesCourse,MessagesPerSchedule messagesPerSchedule, Object valueToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(messagesPerSchedule.getIndexOfSchedule()+"").setValue(valueToSave);
+    } // this is to save the whole list of messages for a schedule
+
+    public void saveMessageToSchedule(MessagesCourse messagesCourse,MessagesPerSchedule messagesPerSchedule,Message messageToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(messagesPerSchedule.getIndexOfSchedule()+"")
+                .child(messagesPerSchedule.getNotes().size()+"").setValue(messageToSave.toMap()); // we save a message on the last space
+    } // this is to save only a specific message
+
 
     // getters for data
     public List<Course> getCourses() {
@@ -442,6 +489,10 @@ public class LabsterApplication extends Application {
     public List<Student> getStudents() {
         return students;
     }
+
+    public List<MessagesCourse> getMessages() {
+        return messages;
+        }
 
 
     public static String getAcronym(String name) {

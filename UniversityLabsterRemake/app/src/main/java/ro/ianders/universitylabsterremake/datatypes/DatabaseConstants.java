@@ -43,4 +43,13 @@ public class DatabaseConstants {
     public static final String SCHEDULE_STARTTIME = "startTime";
     public static final String SCHEDULE_CHECKINS = "checkins";
 
+    //messages constants
+    public static final String NOTES_NODE = "messages";
+    public static final String NOTES_KEY = "key";
+    public static final String NOTES_MESSAGES_PER_SCHEDULE = "notes";
+    public static final String NOTES_INDEX_OF_SCHEDULE = "indexofschedule";
+    public static final String NOTES_OF_SCHEDULE= "schedulenotes";
+    public static final String MESSAGE_USERUID = "useruid";
+    public static final String MESSAGE_STRING_MESSAGE = "message";
+
 }

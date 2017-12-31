@@ -24,6 +24,9 @@ import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.Course;
 import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
 import ro.ianders.universitylabsterremake.datatypes.ListData;
+import ro.ianders.universitylabsterremake.datatypes.Message;
+import ro.ianders.universitylabsterremake.datatypes.MessagesCourse;
+import ro.ianders.universitylabsterremake.datatypes.MessagesPerSchedule;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
@@ -239,30 +242,34 @@ public class CourseActivity extends AppCompatActivity {
         String startTime = currentListData.getSchedule().split(" - ")[0];
         String endTime = currentListData.getSchedule().split(" - ")[1];
 
-        for(Schedule s : currentHour.getSchedules()) //the checkins from today and the right hour
-            if(s.getDate().equals(todayDate) & s.getStartTime().equals(startTime) & s.getEndTime().equals(endTime)) {
+        int i = 0; // we need need this for the database path
+        for(Schedule s : currentHour.getSchedules()) {//the checkins from today and the right hour
+            if (s.getDate().equals(todayDate) & s.getStartTime().equals(startTime) & s.getEndTime().equals(endTime)) {
 
-            if(addCurrentStudent || removeCurrentStudent) { // we solicit the add / remove logic
-                // only if one of this one is true(even saving to database)
-                if (addCurrentStudent) {
-                    s.addCheckin(currentStudent.getUserUID());
-                }
+                if (addCurrentStudent || removeCurrentStudent) { // we solicit the add / remove logic
+                    // only if one of this one is true(even saving to database)
+                    if (addCurrentStudent) {
+                        s.addCheckin(currentStudent.getUserUID());
+                    }
 
-                if (removeCurrentStudent) {
-                    s.removeCheckin(currentStudent.getUserUID());
-                }
+                    if (removeCurrentStudent) {
+                        s.removeCheckin(currentStudent.getUserUID());
+                    }
 
-                // save to database
-                if (type == R.drawable.course) {
-                    LabsterApplication.getInstace().saveFieldToCourse(currentHour, DatabaseConstants.COURSE_SCHEDULES, currentHour.getSchedules());
-                } else {
-                    LabsterApplication.getInstace().saveFieldToActivityCourse((ActivityCourse) currentHour, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES, currentHour.getSchedules());
+                    // save to database
+                    if (type == R.drawable.course) {
+                        LabsterApplication.getInstace().saveFieldToCourse(currentHour, DatabaseConstants.COURSE_SCHEDULES + "/" + i + "/" + DatabaseConstants.COURSE_CHECKINS, s.getCheckins());
+                    } else {
+                        LabsterApplication.getInstace().saveFieldToActivityCourse((ActivityCourse) currentHour, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES + "/" + i + "/" +
+                                DatabaseConstants.ACTIVITYCOURSE_CHECKINS, s.getCheckins());
+                    }
                 }
-            }
 
                 uidcheckins = (ArrayList<String>) s.getCheckins();
                 break;
             }
+            i++;
+        }
 
         if(uidcheckins != null) {
             setCheckinBoxState(uidcheckins); // by default is unchecked (in case there are no check-ins -> uidcheckins = null)
@@ -293,6 +300,27 @@ public class CourseActivity extends AppCompatActivity {
             checkBoxCourse.setChecked(true);
         else // if not found uncheck the box
             checkBoxCourse.setChecked(false);
+    }
+
+    private ArrayList<Message> generateNotes() {
+
+        MessagesCourse messagesCourse = new MessagesCourse(currentHour.getKey()); // we create this object just to query the list and get the
+        //messages course with the schedules
+        int index = LabsterApplication.getInstace().getMessages().indexOf(messagesCourse);
+
+        messagesCourse = LabsterApplication.getInstace().getMessages().get(index); // the messages and the course have the same key
+
+        String todayDate = LabsterApplication.generateTodayDate();
+        String startTime = currentListData.getSchedule().split(" - ")[0];
+        String endTime = currentListData.getSchedule().split(" - ")[1];
+        Schedule schedule = new Schedule(todayDate, startTime, endTime); // we make this so we can query the currentHour for the currentSchedules index
+
+        int indexOfSchedule = currentHour.getSchedules().indexOf(schedule);
+
+        MessagesPerSchedule notes =  messagesCourse.getAllMessages().get(indexOfSchedule); //the schedule and the messages from that schedule have the
+        // same index
+
+        return (ArrayList<Message>) notes.getNotes();
     }
 
 
