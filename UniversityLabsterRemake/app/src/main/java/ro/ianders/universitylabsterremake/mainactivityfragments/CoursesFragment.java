@@ -67,6 +67,7 @@ public class CoursesFragment extends Fragment {
         lvRecyclerCourse = view.findViewById(R.id.lvRecyclerCourses);
 
         CourseOnItemClickListener listener = new CourseOnItemClickListener() { // we use this listener to go to a new CourseActivity when a item is clicked
+            // we can't call startActivity() function from the CoursePagerAdapter
             @Override
             public void onItemClick(ListData listData) {
                     startActivity(new Intent(getContext(), CourseActivity.class).putExtra("data", listData));

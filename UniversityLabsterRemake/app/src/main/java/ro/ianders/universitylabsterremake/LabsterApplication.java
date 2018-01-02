@@ -33,7 +33,6 @@ import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.Message;
 import ro.ianders.universitylabsterremake.datatypes.MessagesCourse;
-import ro.ianders.universitylabsterremake.datatypes.MessagesPerSchedule;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
@@ -371,18 +370,20 @@ public class LabsterApplication extends Application {
                 for(DataSnapshot m : dataSnapshot.getChildren()) {
 
                     String key = m.child(DatabaseConstants.NOTES_KEY).getValue(String.class);
-                    MessagesCourse messagesCourse = new MessagesCourse(key);
 
-                    for(DataSnapshot notes : dataSnapshot.child(DatabaseConstants.NOTES_MESSAGES_PER_SCHEDULE).getChildren()) {
+                    /*List<Message> messagesCourse = new ArrayList<>();
 
-                        int indexOfSchedule = notes.child(DatabaseConstants.NOTES_INDEX_OF_SCHEDULE).getValue(Integer.class);
-                        List<Message> notesOfSchedule = notes.child(DatabaseConstants.NOTES_OF_SCHEDULE).getValue(new GenericTypeIndicator<List<Message>>(){});
+                    for(DataSnapshot message : m.child(DatabaseConstants.NOTES_MESSAGES).getChildren()) {
+                        String userUID = message.child(DatabaseConstants.MESSAGE_USERUID).getValue(String.class);
+                        String note = message.child(DatabaseConstants.MESSAGE_STRING_MESSAGE).getValue(String.class);
+                        messagesCourse.add(new Message(userUID, note));
+                    }*/
 
-                        MessagesPerSchedule messagesPerSchedule = new MessagesPerSchedule(notesOfSchedule, indexOfSchedule);
-                        messagesCourse.addMessagePerSchedule(messagesPerSchedule);
-                    }
+                    List<Message> messagesCourse = m.child(DatabaseConstants.NOTES_MESSAGES).getValue(new GenericTypeIndicator<List<Message>>(){});
 
-                    messages.add(messagesCourse);
+                    MessagesCourse messagesCourse1 =new MessagesCourse(key, messagesCourse);
+                    messages.add(messagesCourse1);
+                    Log.e("MESSAGES", messagesCourse1.toString());
                 }
 
 
@@ -467,14 +468,23 @@ public class LabsterApplication extends Application {
     }
 
     //functions for messages
-    public void saveMessagesToSchedule(MessagesCourse messagesCourse,MessagesPerSchedule messagesPerSchedule, Object valueToSave) {
-        databaseReferenceMessages.child(messagesCourse.getKey()).child(messagesPerSchedule.getIndexOfSchedule()+"").setValue(valueToSave);
+    public void saveMessages(MessagesCourse messagesCourse, List<Message> listToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(DatabaseConstants.NOTES_MESSAGES).setValue(listToSave);
     } // this is to save the whole list of messages for a schedule
 
-    public void saveMessageToSchedule(MessagesCourse messagesCourse,MessagesPerSchedule messagesPerSchedule,Message messageToSave) {
-        databaseReferenceMessages.child(messagesCourse.getKey()).child(messagesPerSchedule.getIndexOfSchedule()+"")
-                .child(messagesPerSchedule.getNotes().size()+"").setValue(messageToSave.toMap()); // we save a message on the last space
+    public void saveMessage(MessagesCourse messagesCourse, Message messageToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(DatabaseConstants.NOTES_MESSAGES)
+                .child(messagesCourse.getAllMessages().size() + "").setValue(messageToSave.toMap()); // we save a message on the last space
     } // this is to save only a specific message
+
+    public void saveMessageAfterDynamics(MessagesCourse messagesCourse, Message messageToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(DatabaseConstants.NOTES_MESSAGES)
+                .child(messagesCourse.getAllMessages().size() - 1+ "").setValue(messageToSave.toMap()); // we save a message on the last space
+    } // this is to save only a specific message (it has a -1 so it will be saved at the same index as the message was saved dynamically in the array
+
+    public void saveCourseMessage(MessagesCourse messagesCourse) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).setValue(messagesCourse.toMap());
+    }
 
 
     // getters for data
@@ -493,6 +503,21 @@ public class LabsterApplication extends Application {
     public List<MessagesCourse> getMessages() {
         return messages;
         }
+
+    public void addMessageCourse(MessagesCourse messagesCourse) {
+        messages.add(messagesCourse);
+    }
+
+    public void addMessageToMesaageCourse(MessagesCourse messagesCourse, Message message) {
+        int index = messages.indexOf(messagesCourse);
+
+        if(index != -1)
+            messages.get(index).addMessage(message);
+        else { // if we add a message that has no messageCourse
+            messagesCourse.addMessage(message);
+            messages.add(messagesCourse);
+        }
+    }
 
 
     public static String getAcronym(String name) {

@@ -7,8 +7,51 @@
     android:layout_height="match_parent"
     tools:context="ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments.CourseActivity">
 
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/my_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            android:minHeight="?attr/actionBarSize">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/pbLogoCourse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/pbTitleCourse"
+            android:layout_alignParentStart="true"
+            android:padding="5dp" />
+
+        <TextView
+            android:id="@+id/pbTitleCourse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="10dp"
+            android:padding="5dp"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        </RelativeLayout>
+
+        </android.support.v7.widget.Toolbar>
+
+
     <android.widget.ScrollView
         android:fillViewport="true"
+        android:layout_below="@+id/my_toolbar"
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
@@ -126,6 +169,8 @@
     </LinearLayout>
 
 </android.widget.ScrollView>
+
+
 
 </RelativeLayout>
 

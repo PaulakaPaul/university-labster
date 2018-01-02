@@ -7,8 +7,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,12 +30,11 @@ import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
 import ro.ianders.universitylabsterremake.datatypes.ListData;
 import ro.ianders.universitylabsterremake.datatypes.Message;
 import ro.ianders.universitylabsterremake.datatypes.MessagesCourse;
-import ro.ianders.universitylabsterremake.datatypes.MessagesPerSchedule;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
 
-public class CourseActivity extends AppCompatActivity {
+public class CourseActivity extends AppCompatActivity implements NotesFragmentCallbacks{
 
     private TextView tvFullName;
     private TextView tvHour;
@@ -40,6 +43,7 @@ public class CourseActivity extends AppCompatActivity {
     private LinearLayout linCheckinAndNotes;
     private TextView tvExtraInfo; //when you click the tvFullName we will show this instead of linCheckinAndNotes and vice versa
     private CheckBox checkBoxCourse;
+    private Toolbar tbCourse;
 
     private boolean showCheckinsAndNotes = false; // we control if we show linCheckinAndNotes with this variable (false cuz on the first click we will show the extra info)
 
@@ -48,6 +52,7 @@ public class CourseActivity extends AppCompatActivity {
     private Course currentHour; // we use this Class to show everything we need
     private int type; // it is a reference to the 3 types of pictures from the list (course, laboratory, seminary)
     private ListData currentListData;
+    private int indexMessagesCourse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,14 +66,43 @@ public class CourseActivity extends AppCompatActivity {
         linCheckinAndNotes = findViewById(R.id.linCheckinsAndNotes);
         tvExtraInfo = findViewById(R.id.tvExtraInfo);
         checkBoxCourse = findViewById(R.id.checkBoxCourse);
+        tbCourse = findViewById(R.id.my_toolbar);
+
+
 
         firebaseAuth = FirebaseAuth.getInstance();
 
         currentListData = getIntent().getParcelableExtra("data"); // get the ListData from the list view
         type = currentListData.getType();
 
+        //setting the toolbar
+        setSupportActionBar(tbCourse);
+
+         if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true); // we active the default back button
+            getSupportActionBar().setDisplayShowTitleEnabled(true);
+            // getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        ImageView pbLogoCourse = findViewById(R.id.pbLogoCourse);
+        TextView pbTitleCourse = findViewById(R.id.pbTitleCourse);
+
+        if(type == R.drawable.course) {
+            pbLogoCourse.setImageResource(R.drawable.course);
+            pbTitleCourse.setText(getResources().getString(R.string.course));
+        }
+        else if(type == R.drawable.laboratory) {
+            pbLogoCourse.setImageResource(R.drawable.laboratory);
+            pbTitleCourse.setText(getResources().getString(R.string.laboratory));
+        }
+        else {
+            pbLogoCourse.setImageResource(R.drawable.seminary);
+            pbTitleCourse.setText(getResources().getString(R.string.seminary));
+        }
+
+        //setting background
         LinearLayout linCourseMain = findViewById(R.id.linCourseMain);
-        linCourseMain.setBackgroundColor(currentListData.getColor()); //setting background
+        linCourseMain.setBackgroundColor(currentListData.getColor());
 
         currentStudent = getCurrentStudent(); // getting current Student for querying data
 
@@ -99,6 +133,8 @@ public class CourseActivity extends AppCompatActivity {
         tabCourse.addTab(tabCourse.newTab().setText(LabsterConstants.TAB_COURSE_CHECKINS));
         tabCourse.addTab(tabCourse.newTab().setText(LabsterConstants.TAB_COURSE_NOTES));
         tabCourse.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        getIndexForMessages(); // we need to call this before the bindAdapterWithPager cuz it generates some data we need for that function
 
         //TODO query the right checkins
         //setting pager
@@ -148,6 +184,33 @@ public class CourseActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.activity_course_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.course_switch_data) {
+            switchBottomData();
+            return true;
+        } else if (id == R.id.course_refresh) {
+            bindAdapterWithPager(false,false);
+            return true;
+        } else if (id == android.R.id.home) { // this is for the back button
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private Student getCurrentStudent() {
 
@@ -289,8 +352,10 @@ public class CourseActivity extends AppCompatActivity {
     }
 
     private void bindAdapterWithPager(boolean addCurrentStudent, boolean removeCurrentStudent) {
-        CoursePagerAdapter coursePagerAdapter = new CoursePagerAdapter(getSupportFragmentManager(), tabCourse.getTabCount(), generateCorrectCheckins(addCurrentStudent, removeCurrentStudent), null);
+
+        CoursePagerAdapter coursePagerAdapter = new CoursePagerAdapter(getSupportFragmentManager(), tabCourse.getTabCount(), generateCorrectCheckins(addCurrentStudent, removeCurrentStudent), generateNotes());
         pagerCourse.setAdapter(coursePagerAdapter);
+
     }
 
     private void setCheckinBoxState(ArrayList<String> uidCheckins) {
@@ -304,24 +369,61 @@ public class CourseActivity extends AppCompatActivity {
 
     private ArrayList<Message> generateNotes() {
 
-        MessagesCourse messagesCourse = new MessagesCourse(currentHour.getKey()); // we create this object just to query the list and get the
-        //messages course with the schedules
-        int index = LabsterApplication.getInstace().getMessages().indexOf(messagesCourse);
-
-        messagesCourse = LabsterApplication.getInstace().getMessages().get(index); // the messages and the course have the same key
-
-        String todayDate = LabsterApplication.generateTodayDate();
-        String startTime = currentListData.getSchedule().split(" - ")[0];
-        String endTime = currentListData.getSchedule().split(" - ")[1];
-        Schedule schedule = new Schedule(todayDate, startTime, endTime); // we make this so we can query the currentHour for the currentSchedules index
-
-        int indexOfSchedule = currentHour.getSchedules().indexOf(schedule);
-
-        MessagesPerSchedule notes =  messagesCourse.getAllMessages().get(indexOfSchedule); //the schedule and the messages from that schedule have the
-        // same index
-
-        return (ArrayList<Message>) notes.getNotes();
+        if(indexMessagesCourse != -1)
+            return (ArrayList<Message>) LabsterApplication.getInstace().getMessages().get(indexMessagesCourse).getAllMessages();
+        else
+            return null;
     }
 
 
+    //we use this callback to save a message
+    @Override
+    public void bindDataWithAdapter(String message) { // this interface callback is called from the NotesFragment
+
+
+        MessagesCourse currentMessagesCourse;
+        Message message1 = new Message(currentStudent.getUserUID(), message);
+
+        if(indexMessagesCourse != -1) { //if the CourseMessage already exists
+            currentMessagesCourse = LabsterApplication.getInstace().getMessages().get(indexMessagesCourse);
+            currentMessagesCourse.addMessage(message1); // firstly we add the message dynamically so we can update the view (the database is slower
+            // so the view wont be recreated in time if we use only the database)
+
+            LabsterApplication.getInstace().saveMessageAfterDynamics(currentMessagesCourse, message1); //save the new message to the database
+
+        } else { //if CourseMessage doesn't exist
+            currentMessagesCourse = new MessagesCourse(currentHour.getKey()); // else we create a new object
+            currentMessagesCourse.addMessage(message1);
+
+            LabsterApplication.getInstace().addMessageCourse(currentMessagesCourse); // firstly we add the message dynamically so we can update the view (the database is slower
+            // so the view wont be recreated in time if we use only the database)
+
+            LabsterApplication.getInstace().saveCourseMessage(currentMessagesCourse); // save a new CourseMessage to the database
+
+            getIndexForMessages(); // so we can update the index for next calls
+        }
+
+
+        //after we recreate the view
+        bindAdapterWithPager(false,false); // this will generate(and refresh the view) the notes and check-ins again
+
+        // setting the tab to be open on the notes tab after adding the note
+        pagerCourse.setCurrentItem(1);
+        tabCourse.setupWithViewPager(pagerCourse);
+
+
+    }
+
+    private void getIndexForMessages() {
+        MessagesCourse messagesCourse = new MessagesCourse(currentHour.getKey()); // we create this object just to query the list and get the right
+        //messages of the course
+        indexMessagesCourse = LabsterApplication.getInstace().getMessages().indexOf(messagesCourse); // the messages and the course have the same key
+    }
+
+
+
  }
+
+interface NotesFragmentCallbacks {
+    void bindDataWithAdapter(String message);
+}

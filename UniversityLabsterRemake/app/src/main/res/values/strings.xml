@@ -6,6 +6,12 @@
 
     <string name="action_settings">Settings</string>
 
+
+    <!-- Strings representing main data -->
+    <string name="course">Course</string>
+    <string name="laboratory">Laboratory</string>
+    <string name="seminary">Seminary</string>
+
     <!-- Strings used for facebook/google login -->
     <string name="facebook_app_id">1749747468378299</string>
     <string name="fb_login_protocol_scheme">fb1749747468378299</string>
@@ -36,6 +42,10 @@
     <!--Strings for the course activities and fragments-->
     <string name="tool_tip_course_name">Click me for extra info about the course!</string>
     <string name="check_in">Check in</string>
+    <string name="send_message_here">send message here</string>
+    <string name="refresh">Refresh</string>
+    <string name="show_extra_data">Show extra data</string>
+    <string name="show_location">Show location</string>
 
 
 </resources>
