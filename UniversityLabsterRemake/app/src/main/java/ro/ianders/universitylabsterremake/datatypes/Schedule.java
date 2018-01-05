@@ -33,6 +33,17 @@ public class Schedule {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;
+        if(checkins == null)
+            checkins = new ArrayList<>();
+    }
+
+    public Schedule(String date, String startTime, String endTime, int step) {
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.step = step;
+        if(checkins == null)
+            checkins = new ArrayList<>();
     }
 
     public String getDate() {

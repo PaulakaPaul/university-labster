@@ -26,6 +26,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import ro.ianders.universitylabsterremake.datatypes.Student;
 import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
+import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFragment;
 
 
 public class MainActivity extends AppCompatActivity
@@ -48,6 +49,14 @@ public class MainActivity extends AppCompatActivity
         }
 
         clickListenerCounter = 3;
+
+
+        //TODO try to select the course item from the drawer so it will run the code from there (avoid duplication of code)
+        FragmentManager fragmentManager = getSupportFragmentManager(); // when the app is opened we show the courses fragment
+        CoursesFragment coursesFragment = new CoursesFragment();
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragmentPlaceHolder, coursesFragment)
+                .commit();
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -120,9 +129,9 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
 
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_profile) {
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_courses) {
 
             CoursesFragment coursesFragment = new CoursesFragment();
             fragmentManager.beginTransaction()
@@ -130,17 +139,19 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack(null)
                     .commit();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_pending_courses) {
+
+            PendingCoursesFragment pendingCoursesFragment = new PendingCoursesFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragmentPlaceHolder, pendingCoursesFragment)
+                    .addToBackStack(null)
+                    .commit();
+
+        } else if (id == R.id.nav_timetable) {
 
 
-        } else if (id == R.id.nav_manage) {
 
-
-
-        } else if (id == R.id.nav_share) {
-
-
-        } else if (id == R.id.nav_send) {
+        }  else if (id == R.id.nav_sign_out) {
             //TODO added here the sign out logic
 
             Toast.makeText(this, "You are logged out!", Toast.LENGTH_SHORT).show();

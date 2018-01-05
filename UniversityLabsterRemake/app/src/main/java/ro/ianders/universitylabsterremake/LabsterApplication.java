@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +35,8 @@ import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.Message;
 import ro.ianders.universitylabsterremake.datatypes.MessagesCourse;
+import ro.ianders.universitylabsterremake.datatypes.PendingActivityCourse;
+import ro.ianders.universitylabsterremake.datatypes.PendingCourse;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
@@ -51,12 +55,16 @@ public class LabsterApplication extends Application {
     private DatabaseReference databaseReferenceStudents;
     private DatabaseReference databaseReferenceActivityCourses;
     private DatabaseReference databaseReferenceMessages;
+    private DatabaseReference databaseReferencePendingCourses;
+    private DatabaseReference databaseReferencePendingActivityCourses;
 
     //local data from the database
     private List<Course> courses;
     private List<ActivityCourse> activities;
     private List<Student> students;
     private List<MessagesCourse> messages;
+    private List<PendingCourse> pendingCourses;
+    private List<PendingActivityCourse> pendingActivityCourses;
 
     //comparator to sort Date types (using a lambda expression)
     private Comparator<Schedule> byDateComparator = (d1, d2) -> {
@@ -135,6 +143,8 @@ public class LabsterApplication extends Application {
         databaseReferenceActivityCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.ACTIVITYCOURSES_NODE);
         databaseReferenceStudents = FirebaseDatabase.getInstance().getReference(DatabaseConstants.STUDENTS_NODE);
         databaseReferenceMessages = FirebaseDatabase.getInstance().getReference(DatabaseConstants.NOTES_NODE);
+        databaseReferencePendingCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.PENDING_COURSE_NODE);
+        databaseReferencePendingActivityCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.PENDING_ACTIVITYCOURSE_NODE);
 
 
         //creating lists of local data
@@ -142,6 +152,8 @@ public class LabsterApplication extends Application {
         activities = new ArrayList<>();
         students = new ArrayList<>();
         messages = new ArrayList<>();
+        pendingCourses = new ArrayList<>();
+        pendingActivityCourses = new ArrayList<>();
 
         //calling local method to set the listeners for the database
         settingListenersForDataBase();
@@ -273,7 +285,6 @@ public class LabsterApplication extends Application {
 
                         Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
                         schedules.add(s);
-                        Log.e("SCHEDULE", s.toString());
                     }
 
 
@@ -285,7 +296,7 @@ public class LabsterApplication extends Application {
                     courses.add(c);
 
                     // TODO delete debugging info log.e
-                    //Log.e("tag", c.toString());
+                    Log.e("COURSE", c.toString());
 
                 }
 
@@ -320,7 +331,6 @@ public class LabsterApplication extends Application {
 
                         Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
                         schedules.add(s);
-                        Log.e("SCHEDULE ACTIVITYCOURSE", s.toString());
                     }
 
                     Collections.sort(schedules, byDateComparator); // sort the schedules by Date
@@ -331,7 +341,7 @@ public class LabsterApplication extends Application {
                     activities.add(c);
 
                     // TODO delete debugging info log.e
-                    Log.e("tag", c.toString());
+                    Log.e("ACTIVITYCOURSE", c.toString());
 
                 }
             }
@@ -387,6 +397,98 @@ public class LabsterApplication extends Application {
                 }
 
 
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        databaseReferencePendingCourses.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                pendingCourses.clear();
+
+                for(DataSnapshot c : dataSnapshot.getChildren()) {
+
+                    List<Student> validations =  c.child(DatabaseConstants.PENDING_COURSE_STUDENTS_VALIDATIONS).getValue(new GenericTypeIndicator<List<Student>>(){});
+                    String key = c.child(DatabaseConstants.COURSE_KEY).getValue(String.class);
+                    CourseData courseData = c.child(DatabaseConstants.COURSE_DATA).getValue(CourseData.class);
+                    List<Professor> professors = c.child(DatabaseConstants.COURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
+                    List<Schedule> schedules = new ArrayList<>();
+
+                    for(DataSnapshot schedule : c.child(DatabaseConstants.COURSE_SCHEDULES).getChildren()) {
+                        Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
+                        String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
+                        String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
+                        String startTime = schedule.child(DatabaseConstants.SCHEDULE_STARTTIME).getValue(String.class);
+                        List<String> checkins = schedule.child(DatabaseConstants.SCHEDULE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
+
+                        Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
+                        schedules.add(s);
+                    }
+
+
+                    Collections.sort(schedules, byDateComparator); // sort the schedules by Date
+
+                    // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
+
+                    PendingCourse pendingCourse = new PendingCourse(key, courseData, professors, schedules, validations);
+                    pendingCourses.add(pendingCourse);
+
+                    // TODO delete debugging info log.e
+                    Log.e("PENDINGCOURSE", pendingCourse.toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        databaseReferencePendingActivityCourses.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                pendingActivityCourses.clear();
+
+
+                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+
+
+                    List<Student> validations =  dataSnapshot1.child(DatabaseConstants.PENDING_ACTIVITYCOURSE_STUDENTS_VALIDATIONS).getValue(new GenericTypeIndicator<List<Student>>(){});
+                    String key = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_KEY).getValue(String.class);
+                    String type = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_TYPE).getValue(String.class);
+                    CourseData courseData = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_DATA).getValue(CourseData.class);
+                    List<Professor> professors = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
+                    List<Schedule> schedules = new ArrayList<>();
+
+                    for(DataSnapshot schedule : dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_SCHEDULES).getChildren()) {
+                        Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
+                        String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
+                        String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
+                        String startTime = schedule.child(DatabaseConstants.SCHEDULE_STARTTIME).getValue(String.class);
+                        List<String> checkins = schedule.child(DatabaseConstants.SCHEDULE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
+
+                        Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
+                        schedules.add(s);
+                    }
+
+                    Collections.sort(schedules, byDateComparator); // sort the schedules by Date
+
+                    // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
+
+                    PendingActivityCourse c = new PendingActivityCourse(key, type, courseData, professors, schedules, validations);
+                    pendingActivityCourses.add(c);
+
+                    // TODO delete debugging info log.e
+                    Log.e("PENDING ACTIVITYCOURSE", c.toString());
+
+                }
             }
 
             @Override
@@ -486,6 +588,50 @@ public class LabsterApplication extends Application {
         databaseReferenceMessages.child(messagesCourse.getKey()).setValue(messagesCourse.toMap());
     }
 
+    //functions for pending course
+    public void savePendingCourse(PendingCourse pendingCourse) {
+
+        // if we have to generate the key for the first time
+            String key = databaseReferenceCourses.push().getKey();
+            pendingCourse.setKey(key);
+
+        databaseReferencePendingCourses.child(pendingCourse.getKey())
+                .setValue(pendingCourse.toMap());
+    }
+
+    public void removePendingCourse(PendingCourse pendingCourse) {
+        databaseReferencePendingCourses.child(pendingCourse.getKey())
+                .removeValue();
+    }
+
+    //save only a validation
+    public void addValidationToPendingCourse(PendingCourse pendingCourse, Student student) {
+        databaseReferencePendingCourses.child(pendingCourse.getKey()).child(DatabaseConstants.PENDING_COURSE_STUDENTS_VALIDATIONS).child(pendingCourse.getValidations().size()+"").setValue(student.toMap());
+    }
+
+    //functions for pending activity course
+    public void savePendingActivityCourse(PendingActivityCourse pendingActivityCourse) {
+
+        // if we have to generate the key for the first time
+        String key = databaseReferencePendingActivityCourses.push().getKey();
+        pendingActivityCourse.setKey(key);
+
+        databaseReferencePendingActivityCourses.child(pendingActivityCourse.getKey())
+                .setValue(pendingActivityCourse.toMap());
+    }
+
+    public void removePendingActivityCourse(PendingActivityCourse pendingActivityCourse) {
+        databaseReferencePendingActivityCourses.child(pendingActivityCourse.getKey())
+                .removeValue();
+    }
+
+    //save only a validation
+    public void addValidationToPendingActivityCourse(PendingActivityCourse pendingActivityCourse, Student student) {
+        databaseReferencePendingActivityCourses.child(pendingActivityCourse.getKey()).child(DatabaseConstants.PENDING_ACTIVITYCOURSE_STUDENTS_VALIDATIONS)
+                .child(pendingActivityCourse.getValidations().size()+"").setValue(student.toMap());
+    }
+
+
 
     // getters for data
     public List<Course> getCourses() {
@@ -503,6 +649,14 @@ public class LabsterApplication extends Application {
     public List<MessagesCourse> getMessages() {
         return messages;
         }
+
+    public List<PendingCourse> getPendingCourses() {
+        return pendingCourses;
+    }
+
+    public List<PendingActivityCourse> getPendingActivityCourses() {
+        return pendingActivityCourses;
+    }
 
     public void addMessageCourse(MessagesCourse messagesCourse) {
         messages.add(messagesCourse);
@@ -641,9 +795,26 @@ public class LabsterApplication extends Application {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/YYYY");
         String todayDate = dateformat.format(cal.getTime());
-        //TODO delete this
+        //TODO delete this from generateTodayDate
         Log.e("TODAY's DATE", todayDate);
         return todayDate;
+    }
+
+    public static Student getCurrentStudent() {
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        Student currentStudent = null;
+
+        if(firebaseUser != null) {
+
+            for (Student s : LabsterApplication.getInstace().getStudents())
+                if (s.getUserUID().equals(firebaseUser.getUid())) {
+                    currentStudent = s;
+                    break; // the UserUid is unique
+                }
+        }
+
+        return currentStudent;
     }
 
 }

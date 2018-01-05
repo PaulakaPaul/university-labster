@@ -20,7 +20,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RegisterActivity"
-            android:label="@string/title_activity_register"/>
+            android:label="@string/title_activity_register" />
         <activity
             android:name=".RegisterActivityFillData"
             android:label="@string/title_activity_register" />
@@ -56,9 +56,16 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <!-- FB login ti'll here-->
+        <!-- FB login ti'll here -->
 
-        <activity android:name=".mainactivityfragments.auxiliaractivitesandfragments.CourseActivity"
+        <activity
+            android:name=".mainactivityfragments.auxiliaractivitesandfragments.CourseActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AddCourseActivity"
+            android:label="@string/add_course"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".mainactivityfragments.auxiliaractivitesandfragments.PendingCourseActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

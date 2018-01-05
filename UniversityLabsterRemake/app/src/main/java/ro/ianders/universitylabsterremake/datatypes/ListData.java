@@ -27,7 +27,7 @@ public class ListData implements Parcelable { // we need to implement the Parcel
     // normal part of the data structure
     private int type; //resource for photo to show
     private int color; //background color
-    private String schedule;
+    protected String schedule;
     private String name;
 
 
@@ -55,7 +55,7 @@ public class ListData implements Parcelable { // we need to implement the Parcel
     }
 
     //used by the Parcelable interface
-    private ListData(Parcel in) {
+    protected ListData(Parcel in) {
         this.type = in.readInt();
         this.color = in.readInt();
         this.schedule = in.readString();

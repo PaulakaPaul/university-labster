@@ -66,7 +66,7 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
         linCheckinAndNotes = findViewById(R.id.linCheckinsAndNotes);
         tvExtraInfo = findViewById(R.id.tvExtraInfo);
         checkBoxCourse = findViewById(R.id.checkBoxCourse);
-        tbCourse = findViewById(R.id.my_toolbar);
+        tbCourse = findViewById(R.id.tbCourse);
 
 
 
@@ -82,23 +82,20 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
             getSupportActionBar().setDisplayHomeAsUpEnabled(true); // we active the default back button
             getSupportActionBar().setDisplayShowTitleEnabled(true);
             // getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+
+             if(type == R.drawable.course) {
+                 getSupportActionBar().setTitle(R.string.course);
+             }
+             else if(type == R.drawable.laboratory) {
+                 getSupportActionBar().setTitle(R.string.laboratory);
+             }
+             else if(type == R.drawable.seminary){
+                 getSupportActionBar().setTitle(R.string.seminary);
+             }
+
         }
 
-        ImageView pbLogoCourse = findViewById(R.id.pbLogoCourse);
-        TextView pbTitleCourse = findViewById(R.id.pbTitleCourse);
-
-        if(type == R.drawable.course) {
-            pbLogoCourse.setImageResource(R.drawable.course);
-            pbTitleCourse.setText(getResources().getString(R.string.course));
-        }
-        else if(type == R.drawable.laboratory) {
-            pbLogoCourse.setImageResource(R.drawable.laboratory);
-            pbTitleCourse.setText(getResources().getString(R.string.laboratory));
-        }
-        else {
-            pbLogoCourse.setImageResource(R.drawable.seminary);
-            pbTitleCourse.setText(getResources().getString(R.string.seminary));
-        }
 
         //setting background
         LinearLayout linCourseMain = findViewById(R.id.linCourseMain);
@@ -112,14 +109,14 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
         //setting name
         String[] name = currentHour.getCourseData().getNameCourse().split(" "); //putting every word on a different line
         String newName = "";
-        boolean newline = false;
+        int i = 0;
         for(String s : name) { // we put the '\n' after 2 words
-            if(newline) {
+            if(i == 2) {
                 newName += s + "\n";
-                newline = false;
+                i = 0;
             }  else {
                 newName += s + " ";
-                newline = true;
+                i++;
             }
         }
         if(newName.charAt(newName.length() - 1) == '\n') // if the last char is '\n' remove it
@@ -136,7 +133,7 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
         getIndexForMessages(); // we need to call this before the bindAdapterWithPager cuz it generates some data we need for that function
 
-        //TODO query the right checkins
+
         //setting pager
         bindAdapterWithPager(false, false);
         pagerCourse.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabCourse));
@@ -184,6 +181,7 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -207,6 +205,7 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
             return true;
         } else if (id == android.R.id.home) { // this is for the back button
             finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -237,18 +236,18 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
         if(type == R.drawable.course) {
 
             for(Course c : LabsterApplication.getInstace().getCourses())
-                if((c.getCourseData().getYear() == year) & (c.getCourseData().getFaculty().equals(faculty)) &
-                        (c.getCourseData().getSection().equals(section)) & (c.getCourseData().getNameCourse().equals(name))) {
-                            currentCourse = c;
-                            break;
+                if((c.getCourseData().getYear() == year) & (c.getCourseData().getFaculty().equalsIgnoreCase(faculty)) &
+                        (c.getCourseData().getSection().equalsIgnoreCase(section)) & (c.getCourseData().getNameCourse().equalsIgnoreCase(name))) {
+                    currentCourse = c;
+                    break;
                 }
         } else {
 
             char charType = type == R.drawable.laboratory ? 'l' : 's';
 
             for(ActivityCourse c : LabsterApplication.getInstace().getActivities())
-                if((c.getCourseData().getYear() == year) & (c.getCourseData().getFaculty().equals(faculty)) &
-                        (c.getCourseData().getSection().equals(section)) & (c.getCourseData().getNameCourse().equals(name))
+                if((c.getCourseData().getYear() == year) & (c.getCourseData().getFaculty().equalsIgnoreCase(faculty)) &
+                        (c.getCourseData().getSection().equalsIgnoreCase(section)) & (c.getCourseData().getNameCourse().equalsIgnoreCase(name))
                         & (c.getType().charAt(0) == charType) ) {
                     currentCourse = c;
                     break;
@@ -282,7 +281,7 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
             text.append("Location: ").append(currentHour.getCourseData().getLocation()).append("\n");
 
             int i = 1;
-            text.append("Professors: ").append("\n");
+            text.append("\nProfessors: ").append("\n");
             for(Professor p : currentHour.getProfessors()) {
                 text.append(i).append(". ").append(p.getName());
 

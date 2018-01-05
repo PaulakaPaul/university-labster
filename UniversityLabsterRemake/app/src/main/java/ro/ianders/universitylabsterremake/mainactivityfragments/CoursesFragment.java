@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import ro.ianders.universitylabsterremake.AddCourseActivity;
 import ro.ianders.universitylabsterremake.datatypes.ListData;
 import ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments.CourseActivity;
 import ro.ianders.universitylabsterremake.LabsterApplication;
@@ -34,6 +36,8 @@ import ro.ianders.universitylabsterremake.datatypes.Student;
 public class CoursesFragment extends Fragment {
 
     private RecyclerView lvRecyclerCourse;
+    private FloatingActionButton fbtnAddCourse;
+
     private ArrayList<ListData> dataToShow;
     private String todayDate;
     private FirebaseUser currentUser;
@@ -65,14 +69,19 @@ public class CoursesFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_courses_list, container, false);
 
         lvRecyclerCourse = view.findViewById(R.id.lvRecyclerCourses);
+        fbtnAddCourse = view.findViewById(R.id.fbtnAddCourse);
 
-        CourseOnItemClickListener listener = new CourseOnItemClickListener() { // we use this listener to go to a new CourseActivity when a item is clicked
-            // we can't call startActivity() function from the CoursePagerAdapter
+        fbtnAddCourse.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemClick(ListData listData) {
-                    startActivity(new Intent(getContext(), CourseActivity.class).putExtra("data", listData));
-                }
-        };
+            public void onClick(View view) {
+                startActivity(new Intent(getContext(), AddCourseActivity.class));
+            }
+        });
+
+        CourseOnItemClickListener<ListData> listener =
+                (ListData listData) ->  startActivity(new Intent(getContext(), CourseActivity.class).putExtra("data", listData));
+        // we use this listener to go to a new CourseActivity when a item is clicked
+        // we can't call startActivity() function from the CoursePagerAdapter
 
         RecyclerView.Adapter adapter = new CoursesListAdapter(dataToShow, listener);
         lvRecyclerCourse.setAdapter(adapter);
@@ -94,12 +103,13 @@ public class CoursesFragment extends Fragment {
 
         for (Course c : LabsterApplication.getInstace().getCourses()) {
             if ((c.getCourseData().getYear() == currentStudent.getYear()) &&
-                    (c.getCourseData().getFaculty()).equals(currentStudent.getFaculty()) &&
-                    (c.getCourseData().getSection().equals(currentStudent.getSection())))
+                    (c.getCourseData().getFaculty()).equalsIgnoreCase(currentStudent.getFaculty()) &&
+                    (c.getCourseData().getSection().equalsIgnoreCase(currentStudent.getSection())))
                 for (Schedule s : c.getSchedules()) {
-                    if (todayDate.equals(s.getDate())) {
+                    if (todayDate.equals(s.getDate())) { //grab all the data from today
                         startHour = s.getStartTime();
                         if (startHour.length() == 4) // we want format of type 09:00 so we can compare it with the ascii code (10 bigger than 09)
+                            // so it is enough to make this artifice to the startHour (hours start only from 8 a clock )
                             startHour = "0" + startHour;
                         finishHour = s.getEndTime();
                         name = c.getCourseData().getNameCourse();
@@ -111,7 +121,8 @@ public class CoursesFragment extends Fragment {
         }
 
         for (ActivityCourse ac : LabsterApplication.getInstace().getActivities()) {
-            if ((ac.getCourseData().getYear() == currentStudent.getYear()) && (ac.getCourseData().getSection().equals(currentStudent.getSection())))
+            if ((ac.getCourseData().getYear() == currentStudent.getYear()) && (ac.getCourseData().getSection().equalsIgnoreCase(currentStudent.getSection()))
+                    & ac.getCourseData().getFaculty().equalsIgnoreCase(currentStudent.getFaculty()))
                 for (Schedule s : ac.getSchedules()) {
                     if (todayDate.equals(s.getDate())) {
                         startHour = s.getStartTime();
@@ -137,8 +148,8 @@ public class CoursesFragment extends Fragment {
 
 
 
-    interface CourseOnItemClickListener { //listener for the CoursesListAdapter
-        void onItemClick(ListData listData);
+    interface CourseOnItemClickListener<T extends ListData> { //listener for the CoursesListAdapter
+        void onItemClick(T listData);
     }
 
 }

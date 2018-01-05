@@ -11,6 +11,8 @@ public class ActivityCourse extends Course {
 
     private String type; //laboratory or seminar
 
+    public ActivityCourse() {}
+
     //same data type as a Course but it's easier to manage data like this
     public ActivityCourse(String key, String type, CourseData courseData, List<Professor> professors, List<Schedule> schedules) {
         super(key, courseData, professors, schedules);

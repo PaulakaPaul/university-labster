@@ -52,4 +52,11 @@ public class DatabaseConstants {
     public static final String MESSAGE_USERUID = "userUID";
     public static final String MESSAGE_STRING_MESSAGE = "message";
 
+    //pending data
+    public static final String PENDING_COURSE_STUDENTS_VALIDATIONS= "validations";
+    public static final String PENDING_ACTIVITYCOURSE_STUDENTS_VALIDATIONS= "validations";
+    public static final String PENDING_COURSE_NODE = "pendingcourse";
+    public static final String PENDING_ACTIVITYCOURSE_NODE = "pendingactivitycourse";
+
+
 }

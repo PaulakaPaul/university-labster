@@ -71,4 +71,8 @@ public class Course {
 
         return s;
     }
+
+    public boolean equals(Object o) {
+        return (o instanceof Course) ? ((Course) o).key.equals(this.key) : false;
+    }
 }

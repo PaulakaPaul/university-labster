@@ -105,11 +105,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onStart();
 
         //TODO make a logic to go to Main or RegisterFill activities if the user is already logged in
-        /*FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if(firebaseUser != null) { //already signed in
             updateUIToMain(); // implemented in this class
-        }*/
+        }
     }
 
 

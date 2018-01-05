@@ -1,22 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="faculty">
-        <item>AC</item>
-        <item>ETC</item>
-        <item>Constructii</item>
-        <item>Mecanica</item>
-        <item>MPT</item>
-        <item>Chimie</item>
+    <string-array name="types">
+        <item>Laboratory</item>
+        <item>Seminary</item>
+        <item>Course</item>
     </string-array>
 
-    <string-array name="section">
-        <item>CTI</item>
-        <item>IS</item>
-        <item>Informatica</item>
-        <item>EEP</item>
-        <item>MTIA</item>
-        <item>IMC</item>
-        <item>TIE</item>
-    </string-array>
 </resources>
