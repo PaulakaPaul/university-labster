@@ -35,6 +35,8 @@ public class PendingCourseActivity extends AppCompatActivity {
     private Course currentHour;
     private PendingListData pendingListData;
     private boolean isExtraInfoOnBottom; // we control the state of the info in the bottom of the activity with this boolean
+    private boolean resultOkOnBackButtonpressed; //when we get out of the activity with the back button we have to control what result we sent (true if a validation occurred)
+                                                // we update the view only if the current student can validate (every user validates only once)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,7 @@ public class PendingCourseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pending_course);
 
         isExtraInfoOnBottom = true; // we start with the normal extra info
+        resultOkOnBackButtonpressed = false; // by default no validation occurred
 
         tvFullName = findViewById(R.id.tvFullName);
         tvValidate = findViewById(R.id.tvValidate);
@@ -125,13 +128,11 @@ public class PendingCourseActivity extends AppCompatActivity {
 
     private void resultForPendingFragment() {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("position", pendingListData.getPosition());
+        resultIntent.putExtra("position", pendingListData.getPosition()); // we sent the position so we know what item to update
         setResult(Activity.RESULT_OK, resultIntent);
     }
 
     private void validate() {
-
-        boolean update = false; // we update the view only if the current student can validate (every user validates only once)
 
         if(currentHour instanceof PendingCourse) {
             if (!((PendingCourse) currentHour).getValidations().contains(LabsterApplication.getCurrentStudent())) {
@@ -154,7 +155,7 @@ public class PendingCourseActivity extends AppCompatActivity {
                     tvNumberOfValidations.setText(String.format("%d", PendingCourse.NUMBER_OF_VALIDATIONS - ((PendingCourse) currentHour).getValidations().size()));
                 }
 
-                update = true;
+                resultOkOnBackButtonpressed = true;
 
             }
         } else if(currentHour instanceof PendingActivityCourse) {
@@ -178,11 +179,11 @@ public class PendingCourseActivity extends AppCompatActivity {
                     tvNumberOfValidations.setText(String.format("%d", PendingCourse.NUMBER_OF_VALIDATIONS - ((PendingActivityCourse) currentHour).getValidations().size()));
                 }
 
-                update = true;
+                resultOkOnBackButtonpressed = true;
             }
         }
 
-        if(update) {
+        if(resultOkOnBackButtonpressed) {
             resultForPendingFragment();
 
             if(!isExtraInfoOnBottom) //we have the validations opened -> we update the view
@@ -312,7 +313,10 @@ public class PendingCourseActivity extends AppCompatActivity {
             switchBottomData();
             return true;
         }  else if (id == android.R.id.home) { // this is for the back button
-            setResult(Activity.RESULT_CANCELED);
+
+            if(!resultOkOnBackButtonpressed) //if no validation occurred there is no need to update the list
+                setResult(Activity.RESULT_CANCELED);
+
             finish();
             return true;
         }

@@ -15,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -32,6 +34,10 @@ import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFr
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
+    private ImageView ivCurrentUser;
+    private TextView tvNameCurrentUser;
+    private TextView tvEmailCurrentUser;
+
     private FirebaseAuth firebaseAuth;
 
     private int clickListenerCounter = 3; //used to check if the user should go to the RegisterActivityFillData on the View.OnClickListener, if
@@ -41,6 +47,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -78,6 +86,14 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        //references for the from the navigation view header
+        View headerView = navigationView.getHeaderView(0);
+        ivCurrentUser = headerView.findViewById(R.id.ivCurrentUser);
+        tvNameCurrentUser = headerView.findViewById(R.id.tvNameCurrentUser);
+        tvEmailCurrentUser = headerView.findViewById(R.id.tvEmailCurrentUser);
+        populateHeader();
+
         navigationView.setNavigationItemSelectedListener(this);
 
         //TODO add this line of code in a more appropriate place
@@ -208,5 +224,20 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void populateHeader() {
+        ivCurrentUser.setImageResource(R.mipmap.uptlogo);
+        Student student = LabsterApplication.getCurrentStudent();
+
+        if(student!= null) {
+            if(student.getProfile().getFirstName() != null)
+                tvNameCurrentUser.setText(String.format("%s %s", student.getProfile().getFirstName(), student.getProfile().getLastName()));
+            else
+                tvNameCurrentUser.setText("Student's name");
+        }
+
+        if(firebaseAuth.getCurrentUser() != null)
+            tvEmailCurrentUser.setText(firebaseAuth.getCurrentUser().getEmail());
+
+    }
 
 }

@@ -2,12 +2,17 @@ package ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivit
 
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -108,17 +113,32 @@ public class NotesFragment extends Fragment {
 
         for(Message m : messages) {
 
+            //important references
             TextView newMessage = new TextView(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-            Student student = new Student(m.getUserUID());
+            Student student = new Student(m.getUserUID()); //grab the student
             int indexOfStudent = LabsterApplication.getInstace().getStudents().indexOf(student);
             student = LabsterApplication.getInstace().getStudents().get(indexOfStudent);
 
-            newMessage.setText(String.format("%s %s: %s",student.getProfile().getLastName(), student.getProfile().getFirstName(), m.getMessage()));
+
+            Context context = getContext();
+            if(context!= null) {
+                if (student.equals(LabsterApplication.getCurrentStudent())) { //if the student is the current student we customize it different
+                   // Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.message_shape); // one method to get a drawable
+                    newMessage.setBackground(getResources().getDrawable(R.drawable.message_shape_current_person, getContext().getTheme()));
+                    params.gravity = Gravity.END;
+                    newMessage.setText(m.getMessage());
+                } else { // this is for any other student
+                    newMessage.setBackground(getResources().getDrawable(R.drawable.message_shape, getContext().getTheme())); // another method to
+                    // get a drawable
+                    newMessage.setText(String.format("%s %s: %s",student.getProfile().getLastName(), student.getProfile().getFirstName(), m.getMessage()));
+                }
+            }
+
+            //customization for all the text
             newMessage.setTextColor(Color.parseColor("#000000"));
             newMessage.setTextSize(18f);
-
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(10,8,10,8);
             newMessage.setLayoutParams(params); //setting margins and height and width
 
