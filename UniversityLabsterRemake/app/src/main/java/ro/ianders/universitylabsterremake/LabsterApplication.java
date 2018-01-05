@@ -9,6 +9,8 @@ import android.util.Log;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,25 +22,22 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import ro.ianders.universitylabsterremake.datatypes.Course;
 import ro.ianders.universitylabsterremake.datatypes.CourseData;
 import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
+import ro.ianders.universitylabsterremake.datatypes.Message;
+import ro.ianders.universitylabsterremake.datatypes.MessagesCourse;
+import ro.ianders.universitylabsterremake.datatypes.PendingActivityCourse;
+import ro.ianders.universitylabsterremake.datatypes.PendingCourse;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
-import ro.ianders.universitylabsterremake.datatypes.Profile;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
 
@@ -55,12 +54,17 @@ public class LabsterApplication extends Application {
     private DatabaseReference databaseReferenceCourses;
     private DatabaseReference databaseReferenceStudents;
     private DatabaseReference databaseReferenceActivityCourses;
-    private DatabaseReference databaseReferenceTemporaryEmail;
+    private DatabaseReference databaseReferenceMessages;
+    private DatabaseReference databaseReferencePendingCourses;
+    private DatabaseReference databaseReferencePendingActivityCourses;
 
     //local data from the database
-    private Set<Course> courses;
-    private Set<ActivityCourse> activities;
+    private List<Course> courses;
+    private List<ActivityCourse> activities;
     private List<Student> students;
+    private List<MessagesCourse> messages;
+    private List<PendingCourse> pendingCourses;
+    private List<PendingActivityCourse> pendingActivityCourses;
 
     //comparator to sort Date types (using a lambda expression)
     private Comparator<Schedule> byDateComparator = (d1, d2) -> {
@@ -138,38 +142,41 @@ public class LabsterApplication extends Application {
         databaseReferenceCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.COURSES_NODE);
         databaseReferenceActivityCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.ACTIVITYCOURSES_NODE);
         databaseReferenceStudents = FirebaseDatabase.getInstance().getReference(DatabaseConstants.STUDENTS_NODE);
-        databaseReferenceTemporaryEmail = FirebaseDatabase.getInstance().getReference(DatabaseConstants.TEMPORARY_EMAIL);
+        databaseReferenceMessages = FirebaseDatabase.getInstance().getReference(DatabaseConstants.NOTES_NODE);
+        databaseReferencePendingCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.PENDING_COURSE_NODE);
+        databaseReferencePendingActivityCourses = FirebaseDatabase.getInstance().getReference(DatabaseConstants.PENDING_ACTIVITYCOURSE_NODE);
 
 
         //creating lists of local data
-        courses = new HashSet<>();
-        activities = new HashSet<>();
+        courses = new ArrayList<>();
+        activities = new ArrayList<>();
         students = new ArrayList<>();
-
+        messages = new ArrayList<>();
+        pendingCourses = new ArrayList<>();
+        pendingActivityCourses = new ArrayList<>();
 
         //calling local method to set the listeners for the database
         settingListenersForDataBase();
 
-
         //dummy set of data : DON'T DELETE IT, IT's USED FOR TESTING
 
-        /*
-        Course c ;
+
+        /*Course c ;
         CourseData courseData = new CourseData("POO", "Parvan", 2, "AC", "CTI");
         Professor professor = new Professor("profesor", "email");
-        Schedule schedule = new Schedule("09/12/2017", "10:00", "12:00",1);
 
         List<Professor> professors = new ArrayList<>();
         professors.add(professor);
-        List<Schedule> schedules = new ArrayList<>();
-        schedules.add(schedule);
-
         List<String> checkins  = new ArrayList<String>() {{
             add("paul");
             add("mihai");
         }};
+        List<Schedule> schedules = new ArrayList<>();
+        Schedule schedule = new Schedule("09/12/2017", "10:00", "12:00",1, checkins);
 
-        c = new Course(courseData, professors, checkins, schedules);
+        schedules.add(schedule);
+
+        c = new Course(courseData, professors, schedules);
 
         saveCourse(c, true);
 
@@ -184,29 +191,31 @@ public class LabsterApplication extends Application {
 
         courseData = new CourseData("AC", "Parvan", 1, "AC", "IS");
 
-        b = new Course(courseData, professors, checkins, schedules);
+        b = new Course(courseData, professors, schedules);
 
-       saveCourse(c, true);
+       saveCourse(b, true);
 
         //dummy set of data
         ActivityCourse activityCourse;
         CourseData courseData2 = new CourseData("POO", "Parvan", 2, "AC", "CTI");
         Professor professor3 = new Professor("profesor", "email");
-        Schedule schedule2 = new Schedule("10/12/2017", "10:00", "12:00", 1);
+        Schedule schedule2 = new Schedule("10/12/2017", "10:00", "12:00", 1, checkins);
 
         List<Professor> professors1 = new ArrayList<>();
         professors1.add(professor3);
         List<Schedule> schedules1 = new ArrayList<>();
         schedules1.add(schedule2);
         schedules1.add(schedule);
-        schedules1.add(new Schedule("8/12/2017", "16:00", "18:00", 2));
+
 
         List<String> checkins1  = new ArrayList<String>() {{
             add("paul");
             add("mihai");
         }};
 
-        activityCourse = new ActivityCourse("laborator", courseData2, professors1, checkins1, schedules1);
+        schedules1.add(new Schedule("8/12/2017", "16:00", "18:00", 2, checkins1));
+
+        activityCourse = new ActivityCourse("laborator", courseData2, professors1, schedules1);
 
         saveActivityCourse(activityCourse, true);
 
@@ -220,35 +229,15 @@ public class LabsterApplication extends Application {
 
         courseData = new CourseData("AC", "Parvan", 1, "AC", "IS");
 
-        activityCourse1 = new ActivityCourse("seminar", courseData, professors, checkins, schedules);
+        activityCourse1 = new ActivityCourse("seminar", courseData, professors, schedules);
 
        saveActivityCourse(activityCourse1, true);
-
-        //student dummy data
-
-        Profile profile = new Profile("Paul", "Iusztin", "email");
-        Profile profile1 = new Profile("Mihai", "Iovanac", "yolo@email");
-
-        Student student = new Student("AC", "CTI", 2, "PaulakaPaul", "1234", profile );
-        Student student1 = new Student("AC", "IS", 1, "prostul", "hello", profile1);
-
-        saveStudent(student, true);
-        saveStudent(student1, true);
-
-
-        //testing methods for students
-
-        saveStudent(new Student("ETC", "ETC1", 3, "Mihaita", "5678", new Profile("Mihai", "Popescu", "mail")), true);
-        saveFieldToStudent(student1, DatabaseConstants.STUDENT_USERNAME, "desteptul");
-
 
         //testing methods for activity courses
 
         saveActivityCourse(new ActivityCourse("laborator", new CourseData("Circuite Digitale", "Parvan", 2, "AC", "CTI"),
-                professors, checkins, schedules), true);
-        checkins.add("Ionel");
-        saveFieldToActivityCourse(activityCourse1, DatabaseConstants.ACTIVITYCOURSE_CHECKINS, checkins);
-        */
+                professors, schedules), true);*/
+
 
 
         /** USED FOR GETTING HASH KEY **/
@@ -283,20 +272,31 @@ public class LabsterApplication extends Application {
                 for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
                     String key = dataSnapshot1.child(DatabaseConstants.COURSE_KEY).getValue(String.class);
-                    List<String> checkins = dataSnapshot1.child(DatabaseConstants.COURSE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
                     CourseData courseData = dataSnapshot1.child(DatabaseConstants.COURSE_DATA).getValue(CourseData.class);
                     List<Professor> professors = dataSnapshot1.child(DatabaseConstants.COURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
-                    List<Schedule> schedules = dataSnapshot1.child(DatabaseConstants.COURSE_SCHEDULES).getValue(new GenericTypeIndicator<List<Schedule>>(){});
-                    if(schedules != null)
-                        Collections.sort(schedules, byDateComparator); // sort the schedules by Date
+                    List<Schedule> schedules = new ArrayList<>();
+
+                    for(DataSnapshot schedule : dataSnapshot1.child(DatabaseConstants.COURSE_SCHEDULES).getChildren()) {
+                        Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
+                        String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
+                        String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
+                        String startTime = schedule.child(DatabaseConstants.SCHEDULE_STARTTIME).getValue(String.class);
+                        List<String> checkins = schedule.child(DatabaseConstants.SCHEDULE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
+
+                        Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
+                        schedules.add(s);
+                    }
+
+
+                    Collections.sort(schedules, byDateComparator); // sort the schedules by Date
 
                     // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
 
-                    Course c = new Course(key, courseData, professors, checkins, schedules);
+                    Course c = new Course(key, courseData, professors, schedules);
                     courses.add(c);
 
                     // TODO delete debugging info log.e
-                    Log.e("tag", c.toString());
+                    Log.e("COURSE", c.toString());
 
                 }
 
@@ -314,25 +314,34 @@ public class LabsterApplication extends Application {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 activities.clear();
-
                 for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
 
                     String key = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_KEY).getValue(String.class);
                     String type = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_TYPE).getValue(String.class);
-                    List<String> checkins = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
                     CourseData courseData = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_DATA).getValue(CourseData.class);
                     List<Professor> professors = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
-                    List<Schedule> schedules = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_SCHEDULES).getValue(new GenericTypeIndicator<List<Schedule>>(){});
-                    if(schedules != null)
-                        Collections.sort(schedules, byDateComparator); // sort the schedules by Date
+                    List<Schedule> schedules = new ArrayList<>();
+
+                    for(DataSnapshot schedule : dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_SCHEDULES).getChildren()) {
+                        Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
+                        String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
+                        String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
+                        String startTime = schedule.child(DatabaseConstants.SCHEDULE_STARTTIME).getValue(String.class);
+                        List<String> checkins = schedule.child(DatabaseConstants.SCHEDULE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
+
+                        Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
+                        schedules.add(s);
+                    }
+
+                    Collections.sort(schedules, byDateComparator); // sort the schedules by Date
 
                     // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
 
-                    ActivityCourse c = new ActivityCourse(key, type, courseData, professors, checkins, schedules);
+                    ActivityCourse c = new ActivityCourse(key, type, courseData, professors, schedules);
                     activities.add(c);
 
                     // TODO delete debugging info log.e
-                    Log.e("tag", c.toString());
+                    Log.e("ACTIVITYCOURSE", c.toString());
 
                 }
             }
@@ -362,7 +371,131 @@ public class LabsterApplication extends Application {
             }
         });
 
+        databaseReferenceMessages.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                messages.clear();
+
+                for(DataSnapshot m : dataSnapshot.getChildren()) {
+
+                    String key = m.child(DatabaseConstants.NOTES_KEY).getValue(String.class);
+
+                    /*List<Message> messagesCourse = new ArrayList<>();
+
+                    for(DataSnapshot message : m.child(DatabaseConstants.NOTES_MESSAGES).getChildren()) {
+                        String userUID = message.child(DatabaseConstants.MESSAGE_USERUID).getValue(String.class);
+                        String note = message.child(DatabaseConstants.MESSAGE_STRING_MESSAGE).getValue(String.class);
+                        messagesCourse.add(new Message(userUID, note));
+                    }*/
+
+                    List<Message> messagesCourse = m.child(DatabaseConstants.NOTES_MESSAGES).getValue(new GenericTypeIndicator<List<Message>>(){});
+
+                    MessagesCourse messagesCourse1 =new MessagesCourse(key, messagesCourse);
+                    messages.add(messagesCourse1);
+                    Log.e("MESSAGES", messagesCourse1.toString());
+                }
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        databaseReferencePendingCourses.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                pendingCourses.clear();
+
+                for(DataSnapshot c : dataSnapshot.getChildren()) {
+
+                    List<Student> validations =  c.child(DatabaseConstants.PENDING_COURSE_STUDENTS_VALIDATIONS).getValue(new GenericTypeIndicator<List<Student>>(){});
+                    String key = c.child(DatabaseConstants.COURSE_KEY).getValue(String.class);
+                    CourseData courseData = c.child(DatabaseConstants.COURSE_DATA).getValue(CourseData.class);
+                    List<Professor> professors = c.child(DatabaseConstants.COURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
+                    List<Schedule> schedules = new ArrayList<>();
+
+                    for(DataSnapshot schedule : c.child(DatabaseConstants.COURSE_SCHEDULES).getChildren()) {
+                        Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
+                        String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
+                        String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
+                        String startTime = schedule.child(DatabaseConstants.SCHEDULE_STARTTIME).getValue(String.class);
+                        List<String> checkins = schedule.child(DatabaseConstants.SCHEDULE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
+
+                        Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
+                        schedules.add(s);
+                    }
+
+
+                    Collections.sort(schedules, byDateComparator); // sort the schedules by Date
+
+                    // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
+
+                    PendingCourse pendingCourse = new PendingCourse(key, courseData, professors, schedules, validations);
+                    pendingCourses.add(pendingCourse);
+
+                    // TODO delete debugging info log.e
+                    Log.e("PENDINGCOURSE", pendingCourse.toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        databaseReferencePendingActivityCourses.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                pendingActivityCourses.clear();
+
+
+                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+
+
+                    List<Student> validations =  dataSnapshot1.child(DatabaseConstants.PENDING_ACTIVITYCOURSE_STUDENTS_VALIDATIONS).getValue(new GenericTypeIndicator<List<Student>>(){});
+                    String key = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_KEY).getValue(String.class);
+                    String type = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_TYPE).getValue(String.class);
+                    CourseData courseData = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_DATA).getValue(CourseData.class);
+                    List<Professor> professors = dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_PROFESSORS).getValue(new GenericTypeIndicator<List<Professor>>(){});
+                    List<Schedule> schedules = new ArrayList<>();
+
+                    for(DataSnapshot schedule : dataSnapshot1.child(DatabaseConstants.ACTIVITYCOURSE_SCHEDULES).getChildren()) {
+                        Integer courseStep = schedule.child(DatabaseConstants.SCHEDULE_COURSESTEP).getValue(Integer.class);
+                        String date = schedule.child(DatabaseConstants.SCHEDULE_DATE).getValue(String.class);
+                        String endTime = schedule.child(DatabaseConstants.SCHEDULE_ENDTIME).getValue(String.class);
+                        String startTime = schedule.child(DatabaseConstants.SCHEDULE_STARTTIME).getValue(String.class);
+                        List<String> checkins = schedule.child(DatabaseConstants.SCHEDULE_CHECKINS).getValue(new GenericTypeIndicator<List<String>>(){});
+
+                        Schedule s = new Schedule(date, startTime, endTime, courseStep, checkins);
+                        schedules.add(s);
+                    }
+
+                    Collections.sort(schedules, byDateComparator); // sort the schedules by Date
+
+                    // !!!!!!!!!!!!!!!! you need to put {} to the GenericTypeIndicator to WORK!!!!!!!!!!!!!!!!!!
+
+                    PendingActivityCourse c = new PendingActivityCourse(key, type, courseData, professors, schedules, validations);
+                    pendingActivityCourses.add(c);
+
+                    // TODO delete debugging info log.e
+                    Log.e("PENDING ACTIVITYCOURSE", c.toString());
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
@@ -382,14 +515,6 @@ public class LabsterApplication extends Application {
 
     }
 
-    public void saveCheckinsToACourse(Course course, List<String> checkins) {
-
-        //using maps it's usually ok when you update multiple locations at the same time
-        HashMap<String, Object> updates = new HashMap<>();
-        updates.put(course.getKey() + "/" + DatabaseConstants.COURSE_CHECKINS, checkins);
-
-        databaseReferenceCourses.updateChildren(updates);
-    }
 
     public void saveSchedulesToACourse(Course course, List<Schedule> schedules) {
         databaseReferenceCourses.child(course.getKey() + "/" + DatabaseConstants.COURSE_SCHEDULES).setValue(schedules);
@@ -444,28 +569,76 @@ public class LabsterApplication extends Application {
         databaseReferenceActivityCourses.child(activityCourse.getKey()).child(field).setValue(valueToSave);
     }
 
+    //functions for messages
+    public void saveMessages(MessagesCourse messagesCourse, List<Message> listToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(DatabaseConstants.NOTES_MESSAGES).setValue(listToSave);
+    } // this is to save the whole list of messages for a schedule
 
-    // save field to temporary email
-    // for those who registered but did not filled they data
-    // if we find data there it means we go to the RegisterFillDataActivity
-    public void saveTemporaryEmail(String email) {
-         String newEmail = getKeyEmail(email);
-        databaseReferenceTemporaryEmail.child(newEmail).setValue(newEmail);
+    public void saveMessage(MessagesCourse messagesCourse, Message messageToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(DatabaseConstants.NOTES_MESSAGES)
+                .child(messagesCourse.getAllMessages().size() + "").setValue(messageToSave.toMap()); // we save a message on the last space
+    } // this is to save only a specific message
+
+    public void saveMessageAfterDynamics(MessagesCourse messagesCourse, Message messageToSave) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).child(DatabaseConstants.NOTES_MESSAGES)
+                .child(messagesCourse.getAllMessages().size() - 1+ "").setValue(messageToSave.toMap()); // we save a message on the last space
+    } // this is to save only a specific message (it has a -1 so it will be saved at the same index as the message was saved dynamically in the array
+
+    public void saveCourseMessage(MessagesCourse messagesCourse) {
+        databaseReferenceMessages.child(messagesCourse.getKey()).setValue(messagesCourse.toMap());
     }
 
-    //remove the temporary email to show the user filled all his data
-    public void removeTemporaryEmail(String email) {
-        String newEmail = getKeyEmail(email);
-        databaseReferenceTemporaryEmail.child(newEmail).removeValue();
+    //functions for pending course
+    public void savePendingCourse(PendingCourse pendingCourse) {
+
+        // if we have to generate the key for the first time
+            String key = databaseReferenceCourses.push().getKey();
+            pendingCourse.setKey(key);
+
+        databaseReferencePendingCourses.child(pendingCourse.getKey())
+                .setValue(pendingCourse.toMap());
+    }
+
+    public void removePendingCourse(PendingCourse pendingCourse) {
+        databaseReferencePendingCourses.child(pendingCourse.getKey())
+                .removeValue();
+    }
+
+    //save only a validation
+    public void addValidationToPendingCourse(PendingCourse pendingCourse, Student student) {
+        databaseReferencePendingCourses.child(pendingCourse.getKey()).child(DatabaseConstants.PENDING_COURSE_STUDENTS_VALIDATIONS).child(pendingCourse.getValidations().size()+"").setValue(student.toMap());
+    }
+
+    //functions for pending activity course
+    public void savePendingActivityCourse(PendingActivityCourse pendingActivityCourse) {
+
+        // if we have to generate the key for the first time
+        String key = databaseReferencePendingActivityCourses.push().getKey();
+        pendingActivityCourse.setKey(key);
+
+        databaseReferencePendingActivityCourses.child(pendingActivityCourse.getKey())
+                .setValue(pendingActivityCourse.toMap());
+    }
+
+    public void removePendingActivityCourse(PendingActivityCourse pendingActivityCourse) {
+        databaseReferencePendingActivityCourses.child(pendingActivityCourse.getKey())
+                .removeValue();
+    }
+
+    //save only a validation
+    public void addValidationToPendingActivityCourse(PendingActivityCourse pendingActivityCourse, Student student) {
+        databaseReferencePendingActivityCourses.child(pendingActivityCourse.getKey()).child(DatabaseConstants.PENDING_ACTIVITYCOURSE_STUDENTS_VALIDATIONS)
+                .child(pendingActivityCourse.getValidations().size()+"").setValue(student.toMap());
     }
 
 
-    // getter for data
-    public Set<Course> getCourses() {
+
+    // getters for data
+    public List<Course> getCourses() {
         return courses;
     }
 
-    public Set<ActivityCourse> getActivities() {
+    public List<ActivityCourse> getActivities() {
         return activities;
     }
 
@@ -473,11 +646,35 @@ public class LabsterApplication extends Application {
         return students;
     }
 
-    public DatabaseReference getDatabaseReferenceTemporaryEmail() {
-        return databaseReferenceTemporaryEmail;
+    public List<MessagesCourse> getMessages() {
+        return messages;
+        }
+
+    public List<PendingCourse> getPendingCourses() {
+        return pendingCourses;
     }
 
-    public String getAcronym(String name) {
+    public List<PendingActivityCourse> getPendingActivityCourses() {
+        return pendingActivityCourses;
+    }
+
+    public void addMessageCourse(MessagesCourse messagesCourse) {
+        messages.add(messagesCourse);
+    }
+
+    public void addMessageToMesaageCourse(MessagesCourse messagesCourse, Message message) {
+        int index = messages.indexOf(messagesCourse);
+
+        if(index != -1)
+            messages.get(index).addMessage(message);
+        else { // if we add a message that has no messageCourse
+            messagesCourse.addMessage(message);
+            messages.add(messagesCourse);
+        }
+    }
+
+
+    public static String getAcronym(String name) {
 
         boolean isAcronym = true;
 
@@ -523,5 +720,101 @@ public class LabsterApplication extends Application {
         return newEmail.toString();
     }
 
+    public void updateDatesFromDatabase() {
+
+        //TODO when courses will be created the date has to be of this type
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        Date date;
+        Calendar calendar = Calendar.getInstance();
+
+        Date currentDate = Calendar.getInstance().getTime(); //today's date
+        Calendar currentDateCallendar = Calendar.getInstance();
+        currentDateCallendar.setTime(currentDate); // and calendar
+
+        //updating courses date schedules
+        for(Course c : courses) {
+            for (Schedule s : c.getSchedules()) {
+                try {
+
+                    date = formatter.parse(s.getDate());
+                    calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
+
+                    if(!formatter.format(currentDate).equals(s.getDate())) // only if it is not today's date ( we compare it as a String cuz it's easier)
+                        while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
+                            calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getStep());
+                        }
+
+                    date = calendar.getTime(); // we save the date as a string back to the schedule
+                    s.setDate(formatter.format(date));
+
+                    if(s.getCheckins() == null) // so we won't save null to database cuz it will crush
+                        s.setCheckins(new ArrayList<>());
+
+                } catch (ParseException e) {
+                    Log.e("PARSEEXCEPTION", "VALIDATE YOUR DATE TYPE");
+                }
+
+            }
+
+            // after changing the schedules we save them again to the database
+            saveFieldToCourse(c, DatabaseConstants.COURSE_SCHEDULES, c.getSchedules());
+        }
+
+
+        //updating activity courses date schedules
+        for(ActivityCourse ac : activities) {
+            for (Schedule s : ac.getSchedules()) {
+                try {
+
+                    date = formatter.parse(s.getDate());
+                    calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
+
+                    if(!formatter.format(currentDate).equals(s.getDate())) // only if it is not today's date ( we compare it as a String cuz it's easier)
+                        while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
+                            calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getStep());
+                        }
+
+                    date = calendar.getTime(); // we save the date as a string back to the schedule
+                    s.setDate(formatter.format(date));
+
+                } catch (ParseException e) {
+                    Log.e("PARSEEXCEPTION", "VALIDATE YOUR DATE TYPE");
+                }
+
+            }
+
+            // after changing the schedules we save them again to the database
+            saveFieldToActivityCourse(ac, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES, ac.getSchedules());
+        }
+
+    }
+
+    public static String generateTodayDate() {
+        //get today's date to show only the activities from today
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/YYYY");
+        String todayDate = dateformat.format(cal.getTime());
+        //TODO delete this from generateTodayDate
+        Log.e("TODAY's DATE", todayDate);
+        return todayDate;
+    }
+
+    public static Student getCurrentStudent() {
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        Student currentStudent = null;
+
+        if(firebaseUser != null) {
+
+            for (Student s : LabsterApplication.getInstace().getStudents())
+                if (s.getUserUID().equals(firebaseUser.getUid())) {
+                    currentStudent = s;
+                    break; // the UserUid is unique
+                }
+        }
+
+        return currentStudent;
+    }
 
 }

@@ -6,6 +6,20 @@
 
     <string name="action_settings">Settings</string>
 
+    <!-- Strings for main drawer menu -->
+    <string name="profile">Profile</string>
+    <string name="courses">Courses</string>
+    <string name="pending_courses">Pending Courses</string>
+    <string name="timetable">Timetable</string>
+    <string name="facilities">Facilities</string>
+    <string name="sign_out">Sign Out</string>
+
+
+    <!-- Strings representing main data -->
+    <string name="course">Course</string>
+    <string name="laboratory">Laboratory</string>
+    <string name="seminary">Seminary</string>
+
     <!-- Strings used for facebook/google login -->
     <string name="facebook_app_id">1749747468378299</string>
     <string name="fb_login_protocol_scheme">fb1749747468378299</string>
@@ -33,6 +47,34 @@
     <string name="logo">Logo</string>
     <string name="continue_with">Continue with:</string>
 
+    <!--Strings for the course activities and fragments-->
+    <string name="tool_tip_course_name">Click me for extra info about the course!</string>
+    <string name="check_in">Check in</string>
+    <string name="send_message_here">send message here</string>
+    <string name="refresh">Refresh</string>
+    <string name="show_extra_data">Show extra data</string>
+    <string name="show_location">Show location</string>
+    <string name="add_course">Add Course</string>
+    <string name="number_of_schedules">Number of schedules</string>
+    <string name="number_of_professors">Number of professors</string>
+    <string name="type_course_seminary_laboratory">Type(Course/Seminary/Laboratory)</string>
+    <string name="year">Year</string>
+    <string name="course_name">Course Name</string>
+    <string name="location">Location</string>
+    <string name="continue_btn">Continue</string>
+    <string name="save_course">Save Course</string>
+    <string name="add_proffesor">Professor</string>
+    <string name="professor_name">Professor Name</string>
+    <string name="professor_email">Professor Email</string>
+    <string name="first_appereance_date">First appereance date (of type: dd/MM/yyyy)</string>
+    <string name="start_time">Start time</string>
+    <string name="end_time">End time</string>
+    <string name="number_of_apparitions">Number of apparitions</string>
+    <string name="add_schedule">Schedule</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="click_me_to_validate">Click me to validate!</string>
 
 
 </resources>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ro.ianders.universitylabsterremake.AddCourseActivity">
+
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tbAddCourse"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:minHeight="?attr/actionBarSize"
+        app:navigationIcon="?attr/homeAsUpIndicator"
+        />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tbAddCourse">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/pbAddCourse"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <fragment
+                android:id="@+id/fragAddCourseFirst"
+                android:name="ro.ianders.universitylabsterremake.mainactivityfragments.AddCourseFirstFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_course_first"/>
+
+            <fragment
+                android:id="@+id/fragAddCourseProfessor"
+                android:name="ro.ianders.universitylabsterremake.mainactivityfragments.AddCourseProfessorFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_course_professor"/>
+
+            <fragment
+                android:id="@+id/fragAddCourseSchedule"
+                android:name="ro.ianders.universitylabsterremake.mainactivityfragments.AddCourseScheduleFragment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_add_course_schedule"/>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout>

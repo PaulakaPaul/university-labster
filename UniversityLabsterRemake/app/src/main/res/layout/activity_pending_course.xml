@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments.PendingCourseActivity">
+
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tbCourse"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        android:minHeight="?attr/actionBarSize"/>
+
+    <android.widget.ScrollView
+        android:fillViewport="true"
+        android:layout_below="@+id/tbCourse"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <LinearLayout
+            android:id="@+id/linCourseMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+
+            <TextView
+                android:id="@+id/tvFullName"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1.5"
+                android:background="@drawable/stroke_layouts"
+                android:gravity="center_horizontal|fill_horizontal|fill"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="22sp"
+                android:textStyle="bold|italic"
+                android:tooltipText="@string/tool_tip_course_name" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="fill"
+                android:layout_marginEnd="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="0.8"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvValidate"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="3"
+                    android:background="@drawable/stroke_layouts"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="5dp"
+                    android:text="@string/click_me_to_validate"
+                    android:textAlignment="center"
+                    android:textAllCaps="false"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold|italic" />
+
+                <TextView
+                    android:id="@+id/tvNumberOfValidations"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_weight="1"
+                    android:background="@drawable/stroke_layouts"
+                    android:text="@string/check_in"
+                    android:textAlignment="center"
+                    android:textColor="#db3236"
+                    android:textSize="27sp"
+                    android:textStyle="bold|italic"
+                    tools:text="5" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvExtraInfo"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginEnd="15dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="7"
+                android:background="@drawable/stroke_layouts"
+                android:padding="10dp"
+                android:text="TextView"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+    </android.widget.ScrollView>
+
+</RelativeLayout>

@@ -19,6 +19,10 @@ public class Student {
 
     public Student() {}
 
+    public Student(String userUID) {
+        this.userUID = userUID;
+    }
+
     public Student(String userUID, String key, String faculty, String section, int year, String username, String password, Profile profile) {
         this.userUID = userUID;
         this.key = key;
@@ -153,5 +157,9 @@ public class Student {
 
     public String toString() {
         return profile.getFirstName() + " " + profile.getLastName();
+    }
+
+    public boolean equals(Object o) {
+        return (o instanceof Student) ? this.userUID.equals(((Student) o).userUID) : false;
     }
 }

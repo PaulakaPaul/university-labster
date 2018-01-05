@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
+import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -22,23 +23,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import ro.ianders.universitylabsterremake.datatypes.Course;
-import ro.ianders.universitylabsterremake.datatypes.CourseData;
-import ro.ianders.universitylabsterremake.datatypes.DatabaseConstants;
-import ro.ianders.universitylabsterremake.datatypes.Professor;
-import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
+import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
+import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFragment;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
@@ -62,20 +51,25 @@ public class MainActivity extends AppCompatActivity
         clickListenerCounter = 3;
 
 
-        findViewById(R.id.button2).setOnClickListener(this);
+        //TODO try to select the course item from the drawer so it will run the code from there (avoid duplication of code)
+        FragmentManager fragmentManager = getSupportFragmentManager(); // when the app is opened we show the courses fragment
+        CoursesFragment coursesFragment = new CoursesFragment();
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragmentPlaceHolder, coursesFragment)
+                .commit();
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        });*/
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -86,8 +80,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
+        //TODO add this line of code in a more appropriate place
+        LabsterApplication.getInstace().updateDatesFromDatabase();
 
     }
 
@@ -132,22 +126,32 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-
-        } else if (id == R.id.nav_gallery) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
 
 
-        } else if (id == R.id.nav_slideshow) {
+        if (id == R.id.nav_profile) {
+
+        } else if (id == R.id.nav_courses) {
+
+            CoursesFragment coursesFragment = new CoursesFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragmentPlaceHolder, coursesFragment)
+                    .addToBackStack(null)
+                    .commit();
+
+        } else if (id == R.id.nav_pending_courses) {
+
+            PendingCoursesFragment pendingCoursesFragment = new PendingCoursesFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragmentPlaceHolder, pendingCoursesFragment)
+                    .addToBackStack(null)
+                    .commit();
+
+        } else if (id == R.id.nav_timetable) {
 
 
-        } else if (id == R.id.nav_manage) {
 
-
-
-        } else if (id == R.id.nav_share) {
-
-
-        } else if (id == R.id.nav_send) {
+        }  else if (id == R.id.nav_sign_out) {
             //TODO added here the sign out logic
 
             Toast.makeText(this, "You are logged out!", Toast.LENGTH_SHORT).show();
@@ -185,7 +189,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void checkForEmptyUserData() {
+    private void checkForEmptyUserData() { //send the user to fill his personal data if leaks on logic occur and data is still empty
 
         if(clickListenerCounter > 0) {
             Log.e("clickListenerCounter: ", clickListenerCounter + "");
