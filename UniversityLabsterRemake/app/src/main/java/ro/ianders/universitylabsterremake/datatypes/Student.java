@@ -139,6 +139,26 @@ public class Student {
         this.profile = profile;
     }
 
+    public void setEmail(String email) {
+        this.profile.setEmail(email);
+    }
+
+    public void setName(String name) {
+        String[] names = name.split(" ");
+
+        this.profile.setLastName(names[0]);
+
+        // the rest of the name we consider it as being the first name (Iusztin Paul Emil)
+        String firstName = "";
+        for(int i = 1; i < names.length ; i++)
+            firstName += names[i] + " ";
+
+        firstName = firstName.substring(0, firstName.length() - 1); // we want to get rid of the last space
+
+        this.profile.setFirstName(firstName);
+
+    }
+
     public HashMap<String, Object> toMap() {
 
         HashMap<String, Object> student = new HashMap<>();

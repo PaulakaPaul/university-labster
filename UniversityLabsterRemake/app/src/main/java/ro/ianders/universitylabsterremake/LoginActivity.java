@@ -67,6 +67,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        setTitle(getResources().getString(R.string.title_activity_login)); // we change the title here cuz in the manifest
+        // we want the title to be different (it will be seen from the launcher icon)
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         //getting references
@@ -104,12 +107,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     protected void onStart() {
         super.onStart();
 
-        //TODO make a logic to go to Main or RegisterFill activities if the user is already logged in
+        /*//TODO make a logic to go to Main or RegisterFill activities if the user is already logged in
         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
         if(firebaseUser != null) { //already signed in
             updateUIToMain(); // implemented in this class
-        }
+        }*/
     }
 
 

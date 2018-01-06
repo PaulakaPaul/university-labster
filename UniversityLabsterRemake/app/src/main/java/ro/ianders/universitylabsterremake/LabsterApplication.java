@@ -658,6 +658,14 @@ public class LabsterApplication extends Application {
         return pendingActivityCourses;
     }
 
+    public void addDynamicallyPendingCourse(PendingCourse pendingCourse) {
+        pendingCourses.add(pendingCourse);
+    }
+
+    public void addDynamicallyActivityPendingCourse(PendingActivityCourse pendingActivityCourse) {
+        pendingActivityCourses.add(pendingActivityCourse);
+    }
+
     public void addMessageCourse(MessagesCourse messagesCourse) {
         messages.add(messagesCourse);
     }
@@ -722,7 +730,6 @@ public class LabsterApplication extends Application {
 
     public void updateDatesFromDatabase() {
 
-        //TODO when courses will be created the date has to be of this type
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         Date date;
@@ -740,13 +747,17 @@ public class LabsterApplication extends Application {
                     date = formatter.parse(s.getDate());
                     calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
 
-                    if(!formatter.format(currentDate).equals(s.getDate())) // only if it is not today's date ( we compare it as a String cuz it's easier)
+                    if(!formatter.format(currentDate).equals(s.getDate())) { // only if it is not today's date ( we compare it as a String cuz it's easier)
                         while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
                             calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getStep());
                         }
 
-                    date = calendar.getTime(); // we save the date as a string back to the schedule
-                    s.setDate(formatter.format(date));
+                        date = calendar.getTime(); // we save the date as a string back to the schedule
+                        s.setDate(formatter.format(date));
+
+                        if(currentDateCallendar.after(calendar)) // we delete it only if the currentDate is after the other date
+                            s.getCheckins().clear(); // we delete the check-ins from previous dates
+                    }
 
                     if(s.getCheckins() == null) // so we won't save null to database cuz it will crush
                         s.setCheckins(new ArrayList<>());
@@ -770,13 +781,17 @@ public class LabsterApplication extends Application {
                     date = formatter.parse(s.getDate());
                     calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
 
-                    if(!formatter.format(currentDate).equals(s.getDate())) // only if it is not today's date ( we compare it as a String cuz it's easier)
+                    if(!formatter.format(currentDate).equals(s.getDate())) { // only if it is not today's date ( we compare it as a String cuz it's easier)
                         while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
                             calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getStep());
                         }
 
-                    date = calendar.getTime(); // we save the date as a string back to the schedule
-                    s.setDate(formatter.format(date));
+                        date = calendar.getTime(); // we save the date as a string back to the schedule
+                        s.setDate(formatter.format(date));
+
+                        if(currentDateCallendar.after(calendar)) // we delete it only if the currentDate is after the other date
+                            s.getCheckins().clear(); // we delete the check-ins from previous dates
+                    }
 
                 } catch (ParseException e) {
                     Log.e("PARSEEXCEPTION", "VALIDATE YOUR DATE TYPE");
@@ -795,8 +810,7 @@ public class LabsterApplication extends Application {
         Calendar cal = Calendar.getInstance();
         SimpleDateFormat dateformat = new SimpleDateFormat("dd/MM/YYYY");
         String todayDate = dateformat.format(cal.getTime());
-        //TODO delete this from generateTodayDate
-        Log.e("TODAY's DATE", todayDate);
+
         return todayDate;
     }
 

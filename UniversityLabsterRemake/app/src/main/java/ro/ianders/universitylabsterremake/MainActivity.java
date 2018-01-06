@@ -15,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
@@ -27,10 +29,15 @@ import com.google.firebase.auth.FirebaseUser;
 import ro.ianders.universitylabsterremake.datatypes.Student;
 import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
 import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFragment;
+import ro.ianders.universitylabsterremake.mainactivityfragments.ProfileFragment;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+
+    private ImageView ivCurrentUser;
+    private TextView tvNameCurrentUser;
+    private TextView tvEmailCurrentUser;
 
     private FirebaseAuth firebaseAuth;
 
@@ -42,6 +49,8 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
+
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         if(firebaseAuth.getCurrentUser() == null) {
@@ -51,12 +60,12 @@ public class MainActivity extends AppCompatActivity
         clickListenerCounter = 3;
 
 
-        //TODO try to select the course item from the drawer so it will run the code from there (avoid duplication of code)
+        /*//TODO try to select the course item from the drawer so it will run the code from there (avoid duplication of code)
         FragmentManager fragmentManager = getSupportFragmentManager(); // when the app is opened we show the courses fragment
         CoursesFragment coursesFragment = new CoursesFragment();
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentPlaceHolder, coursesFragment)
-                .commit();
+                .commit();*/
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -71,6 +80,7 @@ public class MainActivity extends AppCompatActivity
             }
         });*/
 
+        //TODO checkout this code
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -78,13 +88,24 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+        //references for the from the navigation view header
+        View headerView = navigationView.getHeaderView(0);
+        ivCurrentUser = headerView.findViewById(R.id.ivCurrentUser);
+        tvNameCurrentUser = headerView.findViewById(R.id.tvNameCurrentUser);
+        tvEmailCurrentUser = headerView.findViewById(R.id.tvEmailCurrentUser);
+        populateHeader();
+
+        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment
         navigationView.setNavigationItemSelectedListener(this);
 
-        //TODO add this line of code in a more appropriate place
-        LabsterApplication.getInstace().updateDatesFromDatabase();
+
+        LabsterApplication.getInstace().updateDatesFromDatabase(); // we update the dates from the courses and activity courses
 
     }
 
+
+    //TODO checkout this code
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -130,6 +151,12 @@ public class MainActivity extends AppCompatActivity
 
 
         if (id == R.id.nav_profile) {
+
+            ProfileFragment profileFragment = new ProfileFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragmentPlaceHolder, profileFragment)
+                    .addToBackStack(null)
+                    .commit();
 
         } else if (id == R.id.nav_courses) {
 
@@ -208,5 +235,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void populateHeader() {
+
+        ivCurrentUser.setImageResource(R.mipmap.uptlogo);
+        Student student = LabsterApplication.getCurrentStudent();
+
+        if(student!= null) {
+            if(student.getProfile().getFirstName() != null)
+                tvNameCurrentUser.setText(String.format("%s %s", student.getProfile().getFirstName(), student.getProfile().getLastName()));
+            else
+                tvNameCurrentUser.setText("Student's name");
+        }
+
+        if(firebaseAuth.getCurrentUser() != null)
+            tvEmailCurrentUser.setText(firebaseAuth.getCurrentUser().getEmail());
+
+    }
 
 }
