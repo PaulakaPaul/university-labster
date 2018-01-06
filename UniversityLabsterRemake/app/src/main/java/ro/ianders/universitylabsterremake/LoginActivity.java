@@ -67,6 +67,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        setTitle(getResources().getString(R.string.title_activity_login)); // we change the title here cuz in the manifest
+        // we want the title to be different (it will be seen from the launcher icon)
+
         firebaseAuth = FirebaseAuth.getInstance();
 
         //getting references

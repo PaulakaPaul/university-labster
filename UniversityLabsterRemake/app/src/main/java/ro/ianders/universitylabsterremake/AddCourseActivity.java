@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -193,6 +194,7 @@ public class AddCourseActivity extends AppCompatActivity {
                 if(grabThirdSetOfData(scheduleReferences)) {// if everything is ok with the last part of the data we save the course to the database
                     saveData();
                     Toast.makeText(AddCourseActivity.this, "Saved successfully!", Toast.LENGTH_SHORT).show();
+                    setResult(Activity.RESULT_OK); // result to update the view on the pending recycler list fragment
                     finish(); // this is the last phase so we finish the activity
                 }
 
@@ -312,9 +314,11 @@ public class AddCourseActivity extends AppCompatActivity {
         CourseData courseData = new CourseData(nameCourse, location, Integer.parseInt(year), faculty, section);
         if(type.equalsIgnoreCase("course")) {
             PendingCourse pendingCourse = new PendingCourse(courseData, professors, schedules);
+            LabsterApplication.getInstace().addDynamicallyPendingCourse(pendingCourse); // so we can update the the pending list view when we go back
             LabsterApplication.getInstace().savePendingCourse(pendingCourse);
         } else {
             PendingActivityCourse pendingActivityCourse = new PendingActivityCourse(type, courseData, professors, schedules);
+            LabsterApplication.getInstace().addDynamicallyActivityPendingCourse(pendingActivityCourse); // so we can update the the pending list view when we go back
             LabsterApplication.getInstace().savePendingActivityCourse(pendingActivityCourse);
         }
     }

@@ -35,6 +35,7 @@ public class PendingCoursesFragment extends Fragment {
     private List<PendingListData> pendingListDataToShow;
 
     public static final int REQUEST_TO_PENDING_COURSE_ACTIVITY = 2; // for onActivityResult constant
+    public static final int REQUEST_TO_ADD_PENDING_COURSE = 3; //for ActivityAddCourse
 
 
     public PendingCoursesFragment() {
@@ -61,7 +62,7 @@ public class PendingCoursesFragment extends Fragment {
         fbtnAddCourse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getContext(), AddCourseActivity.class));
+                startActivityForResult(new Intent(getContext(), AddCourseActivity.class), REQUEST_TO_ADD_PENDING_COURSE);
             }
         });
 
@@ -130,6 +131,8 @@ public class PendingCoursesFragment extends Fragment {
                 pendingListDataToShow.get(position).incrementNumberOfValidations();
                 bindData();
             }
+        } else if (requestCode == REQUEST_TO_ADD_PENDING_COURSE && resultCode == Activity.RESULT_OK) {
+            bindData();
         }
 
     }

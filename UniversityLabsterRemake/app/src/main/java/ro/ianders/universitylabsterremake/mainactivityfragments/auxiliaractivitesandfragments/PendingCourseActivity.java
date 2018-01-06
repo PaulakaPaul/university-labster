@@ -157,6 +157,9 @@ public class PendingCourseActivity extends AppCompatActivity {
 
                 resultOkOnBackButtonpressed = true;
 
+            } else {
+                setResult(Activity.RESULT_CANCELED);
+                Toast.makeText(this, "Sorry, you already validated!", Toast.LENGTH_SHORT).show();
             }
         } else if(currentHour instanceof PendingActivityCourse) {
             if (!((PendingActivityCourse) currentHour).getValidations().contains(LabsterApplication.getCurrentStudent())) {
@@ -180,6 +183,9 @@ public class PendingCourseActivity extends AppCompatActivity {
                 }
 
                 resultOkOnBackButtonpressed = true;
+            } else {
+                setResult(Activity.RESULT_CANCELED);
+                Toast.makeText(this, "Sorry, you already validated!", Toast.LENGTH_SHORT).show();
             }
         }
 
