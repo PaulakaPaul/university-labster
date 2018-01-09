@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/baseCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
@@ -12,11 +13,12 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/lvRecyclerCourses"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fbtnAddCourse"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
@@ -24,7 +26,9 @@
         android:focusable="true"
         android:src="@drawable/add"
         app:layout_anchor="@+id/lvRecyclerCourses"
-        app:layout_anchorGravity="bottom|right|end" />
+        app:layout_anchorGravity="bottom|end"
+        android:layout_alignParentBottom="true"
+         />
 
 
 </android.support.design.widget.CoordinatorLayout>

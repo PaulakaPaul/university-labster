@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/baseCoordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="8dp"
@@ -11,7 +12,9 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/lvRecyclerPendingCourses"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        app:layout_anchorGravity="center"
+        />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fbtnAddPendingCourse"
@@ -22,8 +25,9 @@
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/add"
-        app:layout_anchor="@+id/lvRecyclerCourses"
-        app:layout_anchorGravity="bottom|right|end" />
+        android:layout_alignParentBottom="true"
+        app:layout_anchor="@+id/baseCoordinator"
+        app:layout_anchorGravity="bottom|end" />
 
 
 </android.support.design.widget.CoordinatorLayout>
