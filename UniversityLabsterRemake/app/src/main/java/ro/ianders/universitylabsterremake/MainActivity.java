@@ -30,6 +30,7 @@ import ro.ianders.universitylabsterremake.datatypes.Student;
 import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
 import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFragment;
 import ro.ianders.universitylabsterremake.mainactivityfragments.ProfileFragment;
+import ro.ianders.universitylabsterremake.mainactivityfragments.TimetableFragment;
 
 
 public class MainActivity extends AppCompatActivity
@@ -59,28 +60,10 @@ public class MainActivity extends AppCompatActivity
 
         clickListenerCounter = 3;
 
-
-        /*//TODO try to select the course item from the drawer so it will run the code from there (avoid duplication of code)
-        FragmentManager fragmentManager = getSupportFragmentManager(); // when the app is opened we show the courses fragment
-        CoursesFragment coursesFragment = new CoursesFragment();
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragmentPlaceHolder, coursesFragment)
-                .commit();*/
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
-
-        //TODO checkout this code
+        //TODO checkout this code ( and how the DrawerLayout works exactly)
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -176,6 +159,12 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_timetable) {
 
+
+            TimetableFragment timetableFragment = new TimetableFragment();
+            fragmentManager.beginTransaction()
+                    .replace(R.id.fragmentPlaceHolder, timetableFragment)
+                    .addToBackStack(null)
+                    .commit();
 
 
         }  else if (id == R.id.nav_sign_out) {
