@@ -325,6 +325,13 @@ public class PendingCourseActivity extends AppCompatActivity {
 
             finish();
             return true;
+        } else if(id == R.id.course_show_location) {
+            String courseLocation = currentHour.getCourseData().getLocation();
+            if(!courseLocation.contains("Timisoara")) courseLocation += ", Timisoara"; //add all the necessary data
+            if(!courseLocation.contains("Romania")) courseLocation += ", Romania";
+
+            LabsterApplication.getInstace().showLocationOnGoogleMaps(courseLocation);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
