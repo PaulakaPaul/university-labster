@@ -1,13 +1,16 @@
 package ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +57,8 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
     private ListData currentListData;
     private int indexMessagesCourse;
 
+    private boolean paused;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +77,11 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
         firebaseAuth = FirebaseAuth.getInstance();
 
-        currentListData = getIntent().getParcelableExtra("data"); // get the ListData from the list view
+        if(getIntent().getParcelableExtra("data") != null) {
+            currentListData = getIntent().getParcelableExtra("data"); // get the ListData from the list view
+            Log.e("PARCELABLE", currentListData.toString());
+        }
+
         type = currentListData.getType();
 
         //setting the toolbar
@@ -181,6 +190,18 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindAdapterWithPager(false, false); //recreate the view when we come back from google maps
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pagerCourse.setAdapter(null); // this is meant for the time whe access the google maps location -> so it wont crash accessing data from the pager
+        // that is not anymore there
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -205,6 +226,13 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
             return true;
         } else if (id == android.R.id.home) { // this is for the back button
             finish();
+            return true;
+        } else if(id == R.id.course_show_location) {
+            String courseLocation = currentHour.getCourseData().getLocation();
+            if(!courseLocation.contains("Timisoara")) courseLocation += ", Timisoara"; //add all the necessary data
+            if(!courseLocation.contains("Romania")) courseLocation += ", Romania";
+
+            LabsterApplication.getInstace().showLocationOnGoogleMaps(courseLocation);
             return true;
         }
 
@@ -257,6 +285,9 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
     }
 
 
+
+
+
     private void switchBottomData() {
 
         if(showCheckinsAndNotes) {
@@ -298,63 +329,62 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
     private ArrayList<String> generateCorrectCheckins(boolean addCurrentStudent, boolean removeCurrentStudent) {
 
-        String todayDate = LabsterApplication.generateTodayDate();
-        ArrayList<String> uidcheckins = null;
-        ArrayList<String> namesCheckins = new ArrayList<>();
-        String startTime = currentListData.getSchedule().split(" - ")[0];
-        String endTime = currentListData.getSchedule().split(" - ")[1];
+            String todayDate = LabsterApplication.generateTodayDate();
+            ArrayList<String> uidcheckins = null;
+            ArrayList<String> namesCheckins = new ArrayList<>();
+            String startTime = currentListData.getSchedule().split(" - ")[0];
+            String endTime = currentListData.getSchedule().split(" - ")[1];
 
-        int i = 0; // we need need this for the database path
-        for(Schedule s : currentHour.getSchedules()) {//the checkins from today and the right hour
-            if (s.getDate().equals(todayDate) & s.getStartTime().equals(startTime) & s.getEndTime().equals(endTime)) {
+            int i = 0; // we need need this for the database path
+            for (Schedule s : currentHour.getSchedules()) {//the checkins from today and the right hour
+                if (s.getDate().equals(todayDate) & s.getStartTime().equals(startTime) & s.getEndTime().equals(endTime)) {
 
-                if (addCurrentStudent || removeCurrentStudent) { // we solicit the add / remove logic
-                    // only if one of this one is true(even saving to database)
-                    if (addCurrentStudent) {
-                        s.addCheckin(currentStudent.getUserUID());
+                    if (addCurrentStudent || removeCurrentStudent) { // we solicit the add / remove logic
+                        // only if one of this one is true(even saving to database)
+                        if (addCurrentStudent) {
+                            s.addCheckin(currentStudent.getUserUID());
+                        }
+
+                        if (removeCurrentStudent) {
+                            s.removeCheckin(currentStudent.getUserUID());
+                        }
+
+                        // save to database
+                        if (type == R.drawable.course) {
+                            LabsterApplication.getInstace().saveFieldToCourse(currentHour, DatabaseConstants.COURSE_SCHEDULES + "/" + i + "/" + DatabaseConstants.COURSE_CHECKINS, s.getCheckins());
+                        } else {
+                            LabsterApplication.getInstace().saveFieldToActivityCourse((ActivityCourse) currentHour, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES + "/" + i + "/" +
+                                    DatabaseConstants.ACTIVITYCOURSE_CHECKINS, s.getCheckins());
+                        }
                     }
 
-                    if (removeCurrentStudent) {
-                        s.removeCheckin(currentStudent.getUserUID());
-                    }
+                    uidcheckins = (ArrayList<String>) s.getCheckins();
+                    break;
+                }
+                i++;
+            }
 
-                    // save to database
-                    if (type == R.drawable.course) {
-                        LabsterApplication.getInstace().saveFieldToCourse(currentHour, DatabaseConstants.COURSE_SCHEDULES + "/" + i + "/" + DatabaseConstants.COURSE_CHECKINS, s.getCheckins());
-                    } else {
-                        LabsterApplication.getInstace().saveFieldToActivityCourse((ActivityCourse) currentHour, DatabaseConstants.ACTIVITYCOURSE_SCHEDULES + "/" + i + "/" +
-                                DatabaseConstants.ACTIVITYCOURSE_CHECKINS, s.getCheckins());
+            if (uidcheckins != null) {
+                setCheckinBoxState(uidcheckins); // by default is unchecked (in case there are no check-ins -> uidcheckins = null)
+                for (String uid : uidcheckins) {
+                    Student s = new Student(uid);
+                    int index = LabsterApplication.getInstace().getStudents().indexOf(s);
+                    if (index != -1) {
+                        String fullName = LabsterApplication.getInstace().getStudents().get(index).getProfile().getLastName() + " " +
+                                LabsterApplication.getInstace().getStudents().get(index).getProfile().getFirstName();
+                        namesCheckins.add(fullName);
                     }
                 }
-
-                uidcheckins = (ArrayList<String>) s.getCheckins();
-                break;
+                return namesCheckins;
             }
-            i++;
-        }
 
-        if(uidcheckins != null) {
-            setCheckinBoxState(uidcheckins); // by default is unchecked (in case there are no check-ins -> uidcheckins = null)
-            for (String uid : uidcheckins) {
-                Student s = new Student(uid);
-                int index = LabsterApplication.getInstace().getStudents().indexOf(s);
-                if (index != -1) {
-                    String fullName = LabsterApplication.getInstace().getStudents().get(index).getProfile().getLastName() + " " +
-                            LabsterApplication.getInstace().getStudents().get(index).getProfile().getFirstName();
-                    namesCheckins.add(fullName);
-                }
-            }
-        return namesCheckins;
-        }
 
        return null;
     }
 
     private void bindAdapterWithPager(boolean addCurrentStudent, boolean removeCurrentStudent) {
-
-        CoursePagerAdapter coursePagerAdapter = new CoursePagerAdapter(getSupportFragmentManager(), tabCourse.getTabCount(), generateCorrectCheckins(addCurrentStudent, removeCurrentStudent), generateNotes());
-        pagerCourse.setAdapter(coursePagerAdapter);
-
+            CoursePagerAdapter coursePagerAdapter = new CoursePagerAdapter(getSupportFragmentManager(), tabCourse.getTabCount(), generateCorrectCheckins(addCurrentStudent, removeCurrentStudent), generateNotes());
+            pagerCourse.setAdapter(coursePagerAdapter);
     }
 
     private void setCheckinBoxState(ArrayList<String> uidCheckins) {

@@ -1,9 +1,11 @@
 package ro.ianders.universitylabsterremake;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.net.Uri;
 import android.util.Base64;
 import android.util.Log;
 
@@ -829,6 +831,13 @@ public class LabsterApplication extends Application {
         }
 
         return currentStudent;
+    }
+
+    public  void showLocationOnGoogleMaps(String address) {
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address + "z=13");
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
     }
 
 }

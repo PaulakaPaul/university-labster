@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
+import android.net.Uri;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity
 
 
         LabsterApplication.getInstace().updateDatesFromDatabase(); // we update the dates from the courses and activity courses
+
 
     }
 
