@@ -24,6 +24,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.Course;
@@ -237,20 +239,32 @@ public class AddCourseActivity extends AppCompatActivity {
 
     private boolean grabSecondSetOfData(List<LinearLayout> linearLayouts) {
 
+        int i = 1;
         for(LinearLayout linearLayout : linearLayouts) {
 
             String professorName = ((EditText) linearLayout.findViewById(R.id.etProfessorName)).getText().toString().trim();
             String professorEmail = ((EditText) linearLayout.findViewById(R.id.etProfessorEmail)).getText().toString().trim();
 
-            //TODO more data validation
 
             if(TextUtils.isEmpty(professorName) || TextUtils.isEmpty(professorEmail)) {
                 Toast.makeText(this, "Please fill the data!", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
+
+            String emailPattern = "(.+)@(.+\\.)(.+)";
+            Pattern pattern = Pattern.compile(emailPattern);
+            Matcher matcher = pattern.matcher(professorEmail);
+
+            if(!matcher.matches()) {
+                Toast.makeText(this, "Professor " + i + " does not have a valid email!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+
             Professor professor = new Professor(professorName, professorEmail);
             professors.add(professor);
+            i++;
         }
 
 
@@ -266,39 +280,54 @@ public class AddCourseActivity extends AppCompatActivity {
             String endTime = ((EditText) linearLayout.findViewById(R.id.etEndTime)).getText().toString().trim();
             String step = ((EditText) linearLayout.findViewById(R.id.etStep)).getText().toString().trim();
 
-            //TODO more data validation
 
             if(TextUtils.isEmpty(date) || TextUtils.isEmpty(startTime) || TextUtils.isEmpty(endTime) || TextUtils.isEmpty(step)) {
                 Toast.makeText(this, "Please fill the data", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
+
             //test for correct data format
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            try {
-                simpleDateFormat.parse(date);
-            } catch (ParseException e) {
+            String datePattern = "([0-3][0-9]/)([0-1][0-9]/)(20[1-4][0-9])";
+            Pattern pattern =  Pattern.compile(datePattern);
+            Matcher matcher = pattern.matcher(date);
+
+            if(!matcher.matches()) {
                 Toast.makeText(this, "Wrong date format!", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            //test for correct data length
-            String[] dates = date.split("/");
-            for(int i = 0 ; i < dates.length ; i++)
-                if(dates[i].length() != 2 && i < 2) {
-                    Toast.makeText(this, "Wrong date format!!", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
 
-            //test for correct data length
-            if (dates[2].length() != 4) {
-                Toast.makeText(this, "Wrong date format!!", Toast.LENGTH_SHORT).show();
+            // test for correct date value
+            String[] dates = date.split("/");
+            if(Integer.parseInt(dates[0]) > 31 || Integer.parseInt(dates[1]) > 12) {
+                Toast.makeText(this, "Wrong date format!!!", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            // test for correct date value
-            if(Integer.parseInt(dates[0]) > 31 || Integer.parseInt(dates[1]) > 12) {
-                Toast.makeText(this, "Wrong date format!!!", Toast.LENGTH_SHORT).show();
+
+            //test for correct time form
+            String timePattern = "([0-1][0-9]):(00)";
+            pattern = Pattern.compile(timePattern);
+            matcher = pattern.matcher(startTime);
+
+            if(!matcher.matches()) {
+                Toast.makeText(this, "Wrong start time format!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+
+            matcher = pattern.matcher(endTime);
+            if(!matcher.matches()) {
+                Toast.makeText(this, "Wrong end time format!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            // only 2 hours length courses are allowed
+            int intStartTime = Integer.parseInt(startTime.split(":")[0]);
+            int intEndTime = Integer.parseInt(endTime.split(":")[0]);
+            if((intEndTime - intStartTime) != 2 ) {
+                Toast.makeText(this, "Length of an hour is of 2 hours, if you want a special case write this to the special course info section", Toast.LENGTH_SHORT).show();
                 return false;
             }
 

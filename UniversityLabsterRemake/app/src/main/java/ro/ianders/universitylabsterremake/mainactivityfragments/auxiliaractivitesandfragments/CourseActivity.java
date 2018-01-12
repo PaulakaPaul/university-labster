@@ -144,7 +144,7 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
 
         //setting pager
-        bindAdapterWithPager(false, false);
+       // bindAdapterWithPager(false, false); we bind it in the onResume() method (more explanations there)
         pagerCourse.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabCourse));
         tabCourse.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
