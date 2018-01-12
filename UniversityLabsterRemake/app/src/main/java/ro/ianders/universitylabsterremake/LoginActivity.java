@@ -227,9 +227,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
 
 
-        //we continue registration
-        // TODO more email and password validation
-
         pbLogin.setVisibility(View.VISIBLE); // we want to see only the progress bar
         svLogin.setVisibility(View.GONE);
 

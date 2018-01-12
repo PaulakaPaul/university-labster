@@ -109,7 +109,6 @@ public class NotesFragment extends Fragment {
 
     private void createTextViewNotes(ArrayList<Message> messages) { // we create and show all the right notes
 
-        //TODO add background layout to messages
 
         for(Message m : messages) {
 

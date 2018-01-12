@@ -23,6 +23,9 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import ro.ianders.universitylabsterremake.datatypes.Student;
 
 
@@ -94,9 +97,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
 
+        String emailPattern = "(.+)@(.+\\.)(.+)";
+        Pattern pattern = Pattern.compile(emailPattern);
+        Matcher matcher = pattern.matcher(email);
 
-        //we continue registration
-        // TODO more email and password validation
+        if(!matcher.matches()) {
+            Toast.makeText(this, "Introduce a valid email!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         pbLogin.setVisibility(View.VISIBLE); // we want to see only the progress bar
         svRegister.setVisibility(View.GONE);

@@ -51,6 +51,7 @@ public class AddCourseActivity extends AppCompatActivity {
     private AutoCompleteTextView etNameAddCourse;
     private AutoCompleteTextView etSectionAddCourse;
     private EditText etYear;
+    // TODO add spinner for the type
     private AutoCompleteTextView etType;
     private EditText etNumberOfProfessors;
     private EditText etNumberOfSchedules;
@@ -220,7 +221,6 @@ public class AddCourseActivity extends AppCompatActivity {
             return false;
         }
 
-        //TODO more data validation
 
         //type validation
         List<String> types = Arrays.asList(getResources().getStringArray(R.array.types));

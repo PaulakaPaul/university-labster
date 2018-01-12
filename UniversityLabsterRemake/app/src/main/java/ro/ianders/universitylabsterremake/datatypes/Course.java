@@ -65,10 +65,6 @@ public class Course {
     public String toString() {
         String s = courseData.getNameCourse() + "\n";
 
-        // TODO delete dummy for
-        for(Schedule schedule : schedules)
-            s += schedule.getDate() + "\n";
-
         return s;
     }
 

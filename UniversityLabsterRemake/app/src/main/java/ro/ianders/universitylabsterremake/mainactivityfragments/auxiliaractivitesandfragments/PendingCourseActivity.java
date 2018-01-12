@@ -313,7 +313,6 @@ public class PendingCourseActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //tODO add implementation for the location
         //noinspection SimplifiableIfStatement
         if (id == R.id.course_switch_data) {
             switchBottomData();

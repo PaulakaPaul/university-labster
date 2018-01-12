@@ -73,8 +73,6 @@ public class LabsterApplication extends Application {
 
         //we save the date in the database as a string so we need to see it as a date when we compare it
 
-        //TODO add a DateTimeFormatter for the month for the catch block in case of example: 10/1/2017 if the data that you get from the EditText does not match and if matches dd/MM/yyyy for all the data remove the day catch block
-
 
         /* this is better for available only from the API 26 which represents <1% of the used androids
 
