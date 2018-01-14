@@ -1,6 +1,7 @@
 package ro.ianders.universitylabsterremake;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -9,16 +10,16 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import ro.ianders.universitylabsterremake.datatypes.PendingActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.PendingCourse;
 import ro.ianders.universitylabsterremake.datatypes.Professor;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
-import ro.ianders.universitylabsterremake.mainactivityfragments.AddCourseProfessorFragment;
 
 
 public class AddCourseActivity extends AppCompatActivity {
@@ -51,8 +51,8 @@ public class AddCourseActivity extends AppCompatActivity {
     private AutoCompleteTextView etNameAddCourse;
     private AutoCompleteTextView etSectionAddCourse;
     private EditText etYear;
-    // TODO add spinner for the type
-    private AutoCompleteTextView etType;
+    private Spinner spinnerType;
+    private boolean isSpinnerDataOk; // we use this to check in further logic if the Spinner Data Is OK
     private EditText etNumberOfProfessors;
     private EditText etNumberOfSchedules;
 
@@ -83,7 +83,7 @@ public class AddCourseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_course);
 
-
+        //toolbar setup
         Toolbar tbAddCourse = findViewById(R.id.tbAddCourse);
         setSupportActionBar(tbAddCourse);
         tbAddCourse.setNavigationOnClickListener(new View.OnClickListener() {
@@ -92,6 +92,8 @@ public class AddCourseActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        isSpinnerDataOk = false; // by default it is not ok
 
         //allocate memory for the data lists
         professors = new ArrayList<>();
@@ -108,7 +110,29 @@ public class AddCourseActivity extends AppCompatActivity {
         etNameAddCourse = findViewById(R.id.etNameAddCourse);
         etSectionAddCourse = findViewById(R.id.etSectionAddCourse);
         etYear = findViewById(R.id.etYearAddCourse);
-        etType = findViewById(R.id.etTypeAddCourse);
+        spinnerType = findViewById(R.id.spinnerType);
+        spinnerType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() { // this is a special case so we put this listener here
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String typeInListener;
+                typeInListener = parent.getItemAtPosition(position).toString();
+                if(typeInListener.equals(getResources().getStringArray(R.array.types)[0])) { // this is : Choose type which is not a type , we use
+                    // this just like a hint
+                    Toast.makeText(AddCourseActivity.this, "Please " + getResources().getStringArray(R.array.types)[0].toLowerCase(),
+                            Toast.LENGTH_SHORT).show();
+                    isSpinnerDataOk = false; // we don't continue with this data
+                } else { // we pass the data to the logic system
+                    type = typeInListener.toLowerCase(); // we need to store the data all in lowercase
+                    isSpinnerDataOk = true;
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         etNumberOfProfessors = findViewById(R.id.etNumberOfProfessors);
         etNumberOfSchedules = findViewById(R.id.etNumberOfSchedules);
 
@@ -211,25 +235,20 @@ public class AddCourseActivity extends AppCompatActivity {
         nameCourse = etNameAddCourse.getText().toString().trim();
         section = etSectionAddCourse.getText().toString().trim();
         year = etYear.getText().toString().trim();
-        type = etType.getText().toString().trim().toLowerCase();
+        // the spinnerType has it's own listener
         numberOfProfessors = etNumberOfProfessors.getText().toString().trim();
         numberOfSchedules =  etNumberOfSchedules.getText().toString().trim();
+
+        if(!isSpinnerDataOk) {
+            Toast.makeText(AddCourseActivity.this, "Please " + getResources().getStringArray(R.array.types)[0].toLowerCase(),
+                    Toast.LENGTH_SHORT).show();
+            return  false;
+        }
+
 
         if(TextUtils.isEmpty(faculty) || TextUtils.isEmpty(location) || TextUtils.isEmpty(nameCourse) || TextUtils.isEmpty(section) ||
                 TextUtils.isEmpty(year) || TextUtils.isEmpty(type) || TextUtils.isEmpty(numberOfProfessors) || TextUtils.isEmpty(numberOfSchedules)) {
             Toast.makeText(this, "Please fill all the data to continue!", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-
-        //type validation
-        List<String> types = Arrays.asList(getResources().getStringArray(R.array.types));
-        for(int i  = 0 ; i < types.size() ; i++) //we want to compare the data only with lower case
-            types.set(i, types.get(i).toLowerCase());
-
-
-        if(!types.contains(type)) {
-            Toast.makeText(this, "Please insert a correct form of type!", Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -379,7 +398,7 @@ public class AddCourseActivity extends AppCompatActivity {
             ArrayList<String> sections = new ArrayList<>();
             ArrayList<String> facultys = new ArrayList<>();
             ArrayList<String> locations = new ArrayList<>();
-            List<String> types = Arrays.asList(getResources().getStringArray(R.array.types));
+
 
 
             for(Course c : LabsterApplication.getInstace().getCourses()) {
@@ -425,7 +444,7 @@ public class AddCourseActivity extends AppCompatActivity {
             map.put("sections", sections);
             map.put("faculties", facultys);
             map.put("locations", locations);
-            map.put("types", types);
+
 
             return map;
         }
@@ -448,9 +467,6 @@ public class AddCourseActivity extends AppCompatActivity {
             etLocation.setThreshold(2);
             etLocation.setAdapter(locationsAdapter);
 
-            ArrayAdapter<String> typesAdapter = new ArrayAdapter<String>(AddCourseActivity.this, android.R.layout.simple_dropdown_item_1line, stringArrayListMap.get("types"));
-            etType.setThreshold(1);
-            etType.setAdapter(typesAdapter);
 
             ArrayAdapter<String> courseNamesAdapter = new ArrayAdapter<String>(AddCourseActivity.this, android.R.layout.simple_dropdown_item_1line, stringArrayListMap.get("courseNames"));
             etNameAddCourse.setThreshold(2);
@@ -466,6 +482,6 @@ public class AddCourseActivity extends AppCompatActivity {
                     .commit();
         }
 
-
     }
+
 }

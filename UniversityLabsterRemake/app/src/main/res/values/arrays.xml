@@ -2,6 +2,7 @@
 <resources>
 
     <string-array name="types">
+        <item>Choose type</item>
         <item>Laboratory</item>
         <item>Seminary</item>
         <item>Course</item>

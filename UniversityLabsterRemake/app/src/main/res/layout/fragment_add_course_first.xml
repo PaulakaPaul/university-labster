@@ -97,21 +97,17 @@
                     />
             </android.support.design.widget.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/etTypeAddCourse"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/type_course_seminary_laboratory"
-                    />
-            </android.support.design.widget.TextInputLayout>
+           <Spinner
+               android:id="@+id/spinnerType"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:entries="@array/types"
+               android:prompt="@string/type_course_seminary_laboratory"
+               style="@android:style/Widget.Material.Spinner"
+               android:layout_marginLeft="10dp"
+               android:layout_marginRight="10dp"
+               android:layout_marginTop="20dp"
+               />
 
             <android.support.design.widget.TextInputLayout
                 android:layout_height="wrap_content"

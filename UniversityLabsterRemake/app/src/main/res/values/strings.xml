@@ -58,7 +58,7 @@
     <string name="add_course">Add Course</string>
     <string name="number_of_schedules">Number of schedules</string>
     <string name="number_of_professors">Number of professors</string>
-    <string name="type_course_seminary_laboratory">Type(Course/Seminary/Laboratory)</string>
+    <string name="type_course_seminary_laboratory">Choose type</string>
     <string name="year">Year</string>
     <string name="course_name">Course Name</string>
     <string name="location">Location</string>
@@ -68,12 +68,13 @@
     <string name="professor_name">Professor Name</string>
     <string name="professor_email">Professor Email</string>
     <string name="first_appereance_date">First appereance date (of type: dd/MM/yyyy)</string>
-    <string name="start_time">Start time</string>
-    <string name="end_time">End time</string>
+    <string name="start_time">Start time (hh:mm)</string>
+    <string name="end_time">End time (hh:mm) </string>
     <string name="number_of_apparitions">Number of apparitions</string>
     <string name="add_schedule">Schedule</string>
     <string name="click_me_to_validate">Click me to validate!</string>
     <string name="add_to_calendar">Add to Calendar</string>
+
 
 
     <!-- Strings for the profile -->

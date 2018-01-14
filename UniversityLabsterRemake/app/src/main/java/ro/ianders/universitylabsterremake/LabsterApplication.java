@@ -298,9 +298,6 @@ public class LabsterApplication extends Application {
                     Course c = new Course(key, courseData, professors, schedules);
                     courses.add(c);
 
-                    // TODO delete debugging info log.e
-                    Log.e("COURSE", c.toString());
-
                 }
 
 
@@ -342,9 +339,6 @@ public class LabsterApplication extends Application {
 
                     ActivityCourse c = new ActivityCourse(key, type, courseData, professors, schedules);
                     activities.add(c);
-
-                    // TODO delete debugging info log.e
-                    Log.e("ACTIVITYCOURSE", c.toString());
 
                 }
             }
@@ -440,8 +434,6 @@ public class LabsterApplication extends Application {
                     PendingCourse pendingCourse = new PendingCourse(key, courseData, professors, schedules, validations);
                     pendingCourses.add(pendingCourse);
 
-                    // TODO delete debugging info log.e
-                    Log.e("PENDINGCOURSE", pendingCourse.toString());
                 }
             }
 
@@ -487,9 +479,6 @@ public class LabsterApplication extends Application {
 
                     PendingActivityCourse c = new PendingActivityCourse(key, type, courseData, professors, schedules, validations);
                     pendingActivityCourses.add(c);
-
-                    // TODO delete debugging info log.e
-                    Log.e("PENDING ACTIVITYCOURSE", c.toString());
 
                 }
             }
