@@ -302,6 +302,8 @@ public class PendingCourseActivity extends AppCompatActivity {
 
         MenuItem courseRefresh = menu.findItem(R.id.course_refresh);
         courseRefresh.setVisible(false); //we don't need the refresh button in this case
+        MenuItem addToCalendar = menu.findItem(R.id.course_add_to_calendar);
+        addToCalendar.setVisible(false); // we don't need this in this activity
 
         return true;
     }

@@ -128,6 +128,18 @@ public class TimetableFragment extends Fragment {
                     timetableData.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.table_cell_shape));
                     timetableData.setLayoutParams(params);
 
+
+                    final String startTime = timetableDatas.get(i).getPeriodOfTime().split(" - ")[0];
+                    final String endTime = timetableDatas.get(i).getPeriodOfTime().split(" - ")[1];
+                    final String type = timetableDatas.get(i).getType();
+                    final String name = timetableDatas.get(i).getName();
+
+                    timetableData.setOnClickListener((view) -> { // listener to add event on calender within the timetable
+                        String date = LabsterApplication.generateTodayDate();
+                        LabsterApplication.getInstace().putDataInCalendar(TimetableFragment.this.getContext(), date, startTime, endTime, name,
+                                type, "");
+                    });
+
                     tableRow.addView(timetableData);
 
                     numberOfViewsAddedInFor++;
@@ -230,11 +242,4 @@ public class TimetableFragment extends Fragment {
             }
     }
 
-
-    private void showData(List<TimetableData> list) {
-
-        Log.e("name", list.getClass().getSimpleName());
-        for(TimetableData timetableData : list)
-            Log.e("timetableTEST", timetableData.getName() + " " + timetableData.getType() + " " + timetableData.getPeriodOfTime());
-    }
 }

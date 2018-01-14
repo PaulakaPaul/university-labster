@@ -234,6 +234,23 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
 
             LabsterApplication.getInstace().showLocationOnGoogleMaps(courseLocation);
             return true;
+        } else if(id == R.id.course_add_to_calendar) {
+
+            String startTime = currentListData.getSchedule().split(" - ")[0];
+            String endTime = currentListData.getSchedule().split(" - ")[1];
+            String date = LabsterApplication.generateTodayDate();
+
+            int type = currentListData.getType();
+            String description = "";
+            if(type == R.drawable.course)
+                description = "course";
+            else if (type == R.drawable.laboratory)
+                description = "laboratory";
+            else if (type == R.drawable.seminary)
+                description = "seminary";
+
+            LabsterApplication.getInstace().putDataInCalendar(this, date, startTime, endTime, currentHour.getCourseData().getNameCourse(),
+                    description, currentHour.getCourseData().getLocation());
         }
 
         return super.onOptionsItemSelected(item);

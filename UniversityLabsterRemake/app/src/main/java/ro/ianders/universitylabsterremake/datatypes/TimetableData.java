@@ -9,7 +9,7 @@ import android.util.Log;
 public class TimetableData {
     private String name;
     private String type;
-    private String periodOfTime;
+    private String periodOfTime; // "startTime - endTime"
 
     public TimetableData(String name, String type, String periodOfTime) {
         this.name = name;

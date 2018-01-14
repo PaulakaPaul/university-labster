@@ -1,13 +1,16 @@
 package ro.ianders.universitylabsterremake;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
+import android.provider.CalendarContract;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
@@ -836,6 +839,45 @@ public class LabsterApplication extends Application {
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
+    }
+
+    public void putDataInCalendar(Context context, String stringDate, String startTime, String endTime, String name, String description, String location) {
+
+        String[] dates = stringDate.split("/");
+        if(dates.length != 3) { // it has to be of format dd/MM/yyyy
+            Toast.makeText(context, "Problems with the dates format!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int day = Integer.parseInt(dates[0]);
+        int month = Integer.parseInt(dates[1]) - 1; //the value used to set the MONTH calendar field. Month value is 0-based. e.g., 0 for January.
+        int year = Integer.parseInt(dates[2]);
+
+        String[] startTimes = startTime.split(":"); // hh/mm
+        String[] endTimes = endTime.split(":"); // hh/mm
+
+        int startTimeHour = Integer.parseInt(startTimes[0]);
+        int startTimeMinute = 0;
+
+        int endTimeHour = Integer.parseInt(endTimes[0]);
+        int endTimeMinute = 0;
+
+        Calendar cStartTime = Calendar.getInstance();
+        cStartTime.set(year, month, day, startTimeHour, startTimeMinute);
+
+        Calendar cEndTime = Calendar.getInstance();
+        cEndTime.set(year, month, day, endTimeHour, endTimeMinute);
+
+
+        Intent intent = new Intent(Intent.ACTION_INSERT)
+                .setData(CalendarContract.Events.CONTENT_URI)
+                .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, cStartTime.getTimeInMillis())
+                .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, cEndTime.getTimeInMillis())
+                .putExtra(CalendarContract.Events.TITLE, name)
+                .putExtra(CalendarContract.Events.DESCRIPTION, description)
+                .putExtra(CalendarContract.Events.EVENT_LOCATION, location);
+
+        startActivity(intent);
     }
 
 }
