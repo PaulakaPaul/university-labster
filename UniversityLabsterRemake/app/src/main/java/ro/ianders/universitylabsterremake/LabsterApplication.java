@@ -731,7 +731,7 @@ public class LabsterApplication extends Application {
         return newEmail.toString();
     }
 
-    public void updateDatesFromDatabase() {
+    public void updateDatesFromDatabase() { // also it cleans the check-ins when the event is outdated
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -751,6 +751,12 @@ public class LabsterApplication extends Application {
                     calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
 
                     if(!formatter.format(currentDate).equals(s.getDate())) { // only if it is not today's date ( we compare it as a String cuz it's easier)
+
+                        // we need to do this before the while loop which brings the currentDateCalendar before the calendar
+                        if(currentDateCallendar.after(calendar)) // we delete it only if the currentDate is after the other date
+                            s.setCheckins(new ArrayList<>()); // we delete the check-ins from previous dates
+
+
                         while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
                             calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getStep());
                         }
@@ -758,8 +764,6 @@ public class LabsterApplication extends Application {
                         date = calendar.getTime(); // we save the date as a string back to the schedule
                         s.setDate(formatter.format(date));
 
-                        if(currentDateCallendar.after(calendar)) // we delete it only if the currentDate is after the other date
-                            s.getCheckins().clear(); // we delete the check-ins from previous dates
                     }
 
                     if(s.getCheckins() == null) // so we won't save null to database cuz it will crush
@@ -785,6 +789,12 @@ public class LabsterApplication extends Application {
                     calendar.setTime(date); // we transform the string to a calendar because we can use the add method just on this class
 
                     if(!formatter.format(currentDate).equals(s.getDate())) { // only if it is not today's date ( we compare it as a String cuz it's easier)
+
+                        // we need to do this before the while loop which brings the currentDateCalendar before the calendar
+                        if(currentDateCallendar.after(calendar)) // we delete it only if the currentDate is after the other date
+                            s.getCheckins().clear(); // we delete the check-ins from previous dates
+
+
                         while (currentDateCallendar.after(calendar)) { //we add the course step until the date is updated
                             calendar.add(Calendar.DAY_OF_MONTH, 7 * s.getStep());
                         }
@@ -792,8 +802,7 @@ public class LabsterApplication extends Application {
                         date = calendar.getTime(); // we save the date as a string back to the schedule
                         s.setDate(formatter.format(date));
 
-                        if(currentDateCallendar.after(calendar)) // we delete it only if the currentDate is after the other date
-                            s.getCheckins().clear(); // we delete the check-ins from previous dates
+
                     }
 
                 } catch (ParseException e) {
