@@ -1,11 +1,9 @@
 package ro.ianders.universitylabsterremake;
 
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //TODO checkout this code ( and how the DrawerLayout works exactly)
+        // adds the navigation view button on the toolbar (top left side)
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -80,17 +78,17 @@ public class MainActivity extends AppCompatActivity
         tvEmailCurrentUser = headerView.findViewById(R.id.tvEmailCurrentUser);
         populateHeader();
 
-        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment
+       // onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment -> we select it from
+        // PopulateAsyncTask()
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        LabsterApplication.getInstace().updateDatesFromDatabase(); // we update the dates from the courses and activity courses
-
+        new PopulateAsyncTask().execute(navigationView); // it populated the view when we load up all the data from the
+        //database AND after the data is loaded it calls the util method that increments the dates and clears the check-ins
 
     }
 
-
-    //TODO checkout this code
+    // Called when the activity has detected the user's press of the back key.
+    // The default implementation simply finishes the current activity, but you can override this to do whatever you want.
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -122,7 +120,6 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
 
-        checkForEmptyUserData();
         return super.onOptionsItemSelected(item);
     }
 
@@ -170,30 +167,11 @@ public class MainActivity extends AppCompatActivity
 
 
         }  else if (id == R.id.nav_sign_out) {
-            //TODO added here the sign out logic
-
-            Toast.makeText(this, "You are logged out!", Toast.LENGTH_SHORT).show();
-
-            firebaseAuth.signOut();
-
-            LoginManager.getInstance().logOut(); //logout from facebook
-
-            // Configure Google Sign Out
-            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build();
-            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-            mGoogleSignInClient.signOut();
-
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
+            signOut();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-
-        checkForEmptyUserData();
 
         return true;
     }
@@ -202,8 +180,26 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View view) { //from the View.OnClickListener interface
 
-        checkForEmptyUserData(); // listened by all the clicks on the views
 
+    }
+
+    private void signOut() {
+        Toast.makeText(this, "You are logged out!", Toast.LENGTH_SHORT).show();
+
+        firebaseAuth.signOut();
+
+        LoginManager.getInstance().logOut(); //logout from facebook
+
+        // Configure Google Sign Out
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient.signOut();
+
+        startActivity(new Intent(this, LoginActivity.class));
+        finish();
     }
 
 
@@ -241,6 +237,26 @@ public class MainActivity extends AppCompatActivity
         if(firebaseAuth.getCurrentUser() != null)
             tvEmailCurrentUser.setText(firebaseAuth.getCurrentUser().getEmail());
 
+    }
+
+    private class PopulateAsyncTask extends AsyncTask<NavigationView, Void, NavigationView> { // it populated the view when we load up all the data from the
+        //database AND after the data is loaded it calls the util method that increments the dates and clears the check-ins
+
+        @Override
+        protected NavigationView doInBackground(NavigationView... v) {
+            while (LabsterApplication.getInstace().getCourses().size() == 0 || LabsterApplication.getInstace().getActivities().size() == 0
+                    || LabsterApplication.getInstace().getStudents().size() == 0 );
+
+            return v[0]; // the navigationView to be called upon selecting the right view
+        }
+
+        @Override
+        protected void onPostExecute(NavigationView navigationView) {
+            super.onPostExecute(navigationView);
+            checkForEmptyUserData(); // sends the user to fill it's data if it is not filled otherwise continue
+            LabsterApplication.getInstace().updateDatesFromDatabase(); // we update the dates from the courses and activity courses and clear the check-ins
+            onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment
+        }
     }
 
 }

@@ -103,7 +103,6 @@
                android:layout_height="match_parent"
                android:entries="@array/types"
                android:prompt="@string/type_course_seminary_laboratory"
-               style="@android:style/Widget.Material.Spinner"
                android:layout_marginLeft="10dp"
                android:layout_marginRight="10dp"
                android:layout_marginTop="20dp"

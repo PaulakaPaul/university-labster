@@ -29,6 +29,7 @@ import ro.ianders.universitylabsterremake.R;
 import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.Course;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
+import ro.ianders.universitylabsterremake.datatypes.Student;
 import ro.ianders.universitylabsterremake.datatypes.TimetableData;
 
 /**
@@ -201,8 +202,13 @@ public class TimetableFragment extends Fragment {
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 
-        for(Course c : courses)
-            for(Schedule s : c.getSchedules()) {
+        Student currentStudent = LabsterApplication.getCurrentStudent();
+
+        for(Course c : courses) {
+            if ( currentStudent.getFaculty().equalsIgnoreCase(c.getCourseData().getFaculty()) &
+                    currentStudent.getSection().equalsIgnoreCase(c.getCourseData().getSection()) &
+                    currentStudent.getYear() == c.getCourseData().getYear()) // we show only the data from the same faculty, section and year
+            for (Schedule s : c.getSchedules()) {
 
                 try {
 
@@ -218,20 +224,20 @@ public class TimetableFragment extends Fragment {
                     }
 
                     String startTime = s.getStartTime();
-                    if(startTime.length() == 4) // 4:00
+                    if (startTime.length() == 4) // 4:00
                         startTime += "0" + startTime; // -> 04:00 -> we need this so we can compare the data in the string form (04:00 < 10:00)
 
                     TimetableData timetableData = new TimetableData(c.getCourseData().getNameCourse(), type, startTime + " - " + s.getEndTime());
 
-                    if(dayOfWeek == Calendar.MONDAY)
+                    if (dayOfWeek == Calendar.MONDAY)
                         monday.add(timetableData);
-                    else if(dayOfWeek == Calendar.TUESDAY)
+                    else if (dayOfWeek == Calendar.TUESDAY)
                         tuesday.add(timetableData);
-                    else if(dayOfWeek == Calendar.WEDNESDAY)
+                    else if (dayOfWeek == Calendar.WEDNESDAY)
                         wednesday.add(timetableData);
-                    else if(dayOfWeek == Calendar.THURSDAY)
+                    else if (dayOfWeek == Calendar.THURSDAY)
                         thursday.add(timetableData);
-                    else if(dayOfWeek == Calendar.FRIDAY)
+                    else if (dayOfWeek == Calendar.FRIDAY)
                         friday.add(timetableData);
 
 
@@ -240,6 +246,7 @@ public class TimetableFragment extends Fragment {
                 }
 
             }
+        }
     }
 
 }
