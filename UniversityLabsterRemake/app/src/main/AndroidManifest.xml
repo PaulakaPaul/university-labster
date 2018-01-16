@@ -68,6 +68,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".mainactivityfragments.auxiliaractivitesandfragments.PendingCourseActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <receiver android:name=".broadcastreciervers.NotificationPublisher"/>
     </application>
+
+
+
 
 </manifest>

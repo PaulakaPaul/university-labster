@@ -231,7 +231,6 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
             String courseLocation = currentHour.getCourseData().getLocation();
             if(!courseLocation.contains("Timisoara")) courseLocation += ", Timisoara"; //add all the necessary data
             if(!courseLocation.contains("Romania")) courseLocation += ", Romania";
-
             LabsterApplication.getInstace().showLocationOnGoogleMaps(courseLocation);
             return true;
         } else if(id == R.id.course_add_to_calendar) {

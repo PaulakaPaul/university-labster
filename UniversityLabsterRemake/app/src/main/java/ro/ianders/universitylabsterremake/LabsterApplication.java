@@ -833,7 +833,7 @@ public class LabsterApplication extends Application {
     }
 
     public  void showLocationOnGoogleMaps(String address) {
-        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address + "?z=20");
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + address);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);

@@ -16,4 +16,6 @@ public class LabsterConstants {
 
         public static final String ADD_COURSE_NUMBER_OF__PROFFSSORS = "professors";
         public static final String ADD_COURSE_NUMBER_OF_SCHEDULES = "schedules";
+
+        public static final int NOTIFICATION_DELAY = 2;
 }

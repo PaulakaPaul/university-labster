@@ -1,6 +1,8 @@
 package ro.ianders.universitylabsterremake.mainactivityfragments;
 
 
+import android.app.Notification;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import ro.ianders.universitylabsterremake.AddCourseActivity;
+import ro.ianders.universitylabsterremake.LabsterConstants;
 import ro.ianders.universitylabsterremake.datatypes.ListData;
 import ro.ianders.universitylabsterremake.mainactivityfragments.auxiliaractivitesandfragments.CourseActivity;
 import ro.ianders.universitylabsterremake.LabsterApplication;
@@ -28,6 +32,7 @@ import ro.ianders.universitylabsterremake.datatypes.ActivityCourse;
 import ro.ianders.universitylabsterremake.datatypes.Course;
 import ro.ianders.universitylabsterremake.datatypes.Schedule;
 import ro.ianders.universitylabsterremake.datatypes.Student;
+import ro.ianders.universitylabsterremake.broadcastreciervers.NotificationPublisher;
 
 
 /**
@@ -49,7 +54,7 @@ public class CoursesFragment extends Fragment {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         todayDate = LabsterApplication.generateTodayDate();
         findCurrentStudent();
-        generateDataToShow();
+
     }
 
     private void findCurrentStudent() {
@@ -78,11 +83,13 @@ public class CoursesFragment extends Fragment {
             }
         });
 
+
         CourseOnItemClickListener<ListData> listener =
                 (ListData listData) ->  startActivity(new Intent(getContext(), CourseActivity.class).putExtra("data", listData));
         // we use this listener to go to a new CourseActivity when a item is clicked
         // we can't call startActivity() function from the CoursePagerAdapter
 
+        generateDataToShow();
         RecyclerView.Adapter adapter = new CoursesListAdapter(dataToShow, listener);
         lvRecyclerCourse.setAdapter(adapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -101,11 +108,21 @@ public class CoursesFragment extends Fragment {
         // we show only the course from today and with the same section and year with the student
         // we check the year, section and faculty to be the same
 
+        int i = 1; // we use this so we will have a different id and request_code for all the notification -> so we can have multiple notifications at the
+        // same time
+
         for (Course c : LabsterApplication.getInstace().getCourses()) {
             if ((c.getCourseData().getYear() == currentStudent.getYear()) &&
                     (c.getCourseData().getFaculty()).equalsIgnoreCase(currentStudent.getFaculty()) &&
                     (c.getCourseData().getSection().equalsIgnoreCase(currentStudent.getSection())))
                 for (Schedule s : c.getSchedules()) {
+
+                    generateNotification(c.getCourseData().getNameCourse(), s.getStartTime(), s.getEndTime(), s.getDate(), R.drawable.course, i);
+                    //we generate notifications
+                    // for all the courses that are from our same year, section, faculty and for all the schedules
+                    i++;  // we increment the id for a new unique one
+
+
                     if (todayDate.equals(s.getDate())) { //grab all the data from today
                         startHour = s.getStartTime();
                         if (startHour.length() == 4) // we want format of type 09:00 so we can compare it with the ascii code (10 bigger than 09)
@@ -120,10 +137,22 @@ public class CoursesFragment extends Fragment {
                 }
         }
 
+
         for (ActivityCourse ac : LabsterApplication.getInstace().getActivities()) {
             if ((ac.getCourseData().getYear() == currentStudent.getYear()) && (ac.getCourseData().getSection().equalsIgnoreCase(currentStudent.getSection()))
                     & ac.getCourseData().getFaculty().equalsIgnoreCase(currentStudent.getFaculty()))
                 for (Schedule s : ac.getSchedules()) {
+
+                    int drawableImage;
+                    if(ac.getType().substring(0,1).equalsIgnoreCase("l"))
+                        drawableImage = R.drawable.laboratory;
+                    else
+                        drawableImage = R.drawable.seminary;
+                    generateNotification(ac.getCourseData().getNameCourse(), s.getStartTime(), s.getEndTime(), s.getDate(), drawableImage, i);
+                    //we generate notifications
+                    // for all the activity courses that are from our same year, section, faculty and for all the schedules
+                    i++;   // we increment the id for a new unique one
+
                     if (todayDate.equals(s.getDate())) {
                         startHour = s.getStartTime();
                         if (startHour.length() == 4) // we want format of type 09:00 so we can compare it with the ascii code (10 bigger than 09)
@@ -145,6 +174,13 @@ public class CoursesFragment extends Fragment {
         // ( 01:00 < 10:00 ) ; (08:00 < 22:00)
     }
 
+    private void generateNotification(String name, String startHour, String endHour, String date, int image, int request_code) {
+            Notification notification = NotificationPublisher.getNotification("\tfrom " + startHour + " to " + endHour, name, image, getContext());
+            String startHourString = startHour.split(":")[0];
+            int startHourInt = Integer.parseInt(startHourString);
+            Log.e("Hour", startHour + "");
+            NotificationPublisher.scheduleNotification(getContext(), notification, startHourInt - LabsterConstants.NOTIFICATION_DELAY, date, request_code);
+        }
 
 
 

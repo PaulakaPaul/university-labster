@@ -1,5 +1,6 @@
 package ro.ianders.universitylabsterremake;
 
+import android.app.Notification;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import ro.ianders.universitylabsterremake.broadcastreciervers.NotificationPublisher;
 import ro.ianders.universitylabsterremake.datatypes.Student;
 import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
 import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFragment;
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity
         ivCurrentUser = headerView.findViewById(R.id.ivCurrentUser);
         tvNameCurrentUser = headerView.findViewById(R.id.tvNameCurrentUser);
         tvEmailCurrentUser = headerView.findViewById(R.id.tvEmailCurrentUser);
-        populateHeader();
+       // populateHeader(); -> moved this to PopulateAsyncTask()
 
        // onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment -> we select it from
         // PopulateAsyncTask()
@@ -117,6 +119,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Toast.makeText(this, "Hello there, no settings yet!", Toast.LENGTH_SHORT).show();
             return true;
         }
 
@@ -255,6 +258,7 @@ public class MainActivity extends AppCompatActivity
             super.onPostExecute(navigationView);
             checkForEmptyUserData(); // sends the user to fill it's data if it is not filled otherwise continue
             LabsterApplication.getInstace().updateDatesFromDatabase(); // we update the dates from the courses and activity courses and clear the check-ins
+            populateHeader(); // we populate the header after the data is loaded in the system
             onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment
         }
     }
