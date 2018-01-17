@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -518,9 +519,7 @@ public class LabsterApplication extends Application {
 
     public void saveFieldToCourse(Course course, String field, Object valueToSave) {
         //the field is from the DatabaseConstants specifiers
-
-        //TODO check the field to be only from the DatabaseConstants, otherwise you can't update with this method
-        databaseReferenceCourses.child(course.getKey()).child(field).setValue(valueToSave);
+            databaseReferenceCourses.child(course.getKey()).child(field).setValue(valueToSave);
     }
 
 
@@ -537,9 +536,7 @@ public class LabsterApplication extends Application {
 
     public void saveFieldToStudent(Student student, String field, Object valueToSave) {
         //the field is from the DatabaseConstants specifiers
-
-        //TODO check the field to be only from the DatabaseConstants, otherwise you can't update with this method
-        databaseReferenceStudents.child(student.getKey()).child(field).setValue(valueToSave);
+            databaseReferenceStudents.child(student.getKey()).child(field).setValue(valueToSave);
     }
 
 
@@ -556,9 +553,7 @@ public class LabsterApplication extends Application {
 
     public void saveFieldToActivityCourse(ActivityCourse activityCourse, String field, Object valueToSave) {
         //the field is from the DatabaseConstants specifiers
-
-        //TODO check the field to be only from the DatabaseConstants, otherwise you can't update with this method
-        databaseReferenceActivityCourses.child(activityCourse.getKey()).child(field).setValue(valueToSave);
+            databaseReferenceActivityCourses.child(activityCourse.getKey()).child(field).setValue(valueToSave);
     }
 
     //functions for messages

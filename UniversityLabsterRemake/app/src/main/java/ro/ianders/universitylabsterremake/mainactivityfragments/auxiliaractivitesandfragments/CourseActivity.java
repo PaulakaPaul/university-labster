@@ -465,10 +465,9 @@ public class CourseActivity extends AppCompatActivity implements NotesFragmentCa
         indexMessagesCourse = LabsterApplication.getInstace().getMessages().indexOf(messagesCourse); // the messages and the course have the same key
     }
 
-
-
  }
 
-interface NotesFragmentCallbacks {
-    void bindDataWithAdapter(String message);
-}
+ interface NotesFragmentCallbacks {
+     void bindDataWithAdapter(String message);
+ }
+

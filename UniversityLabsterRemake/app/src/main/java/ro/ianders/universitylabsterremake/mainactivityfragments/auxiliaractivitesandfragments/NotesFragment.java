@@ -78,7 +78,7 @@ public class NotesFragment extends Fragment {
             notesFragmentCallbacks = (NotesFragmentCallbacks) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement the interface " +
-                    "called: NotesFragmentCallbacks");
+                    "called: ChangeProfilePicHeader");
         }
 
     }

@@ -1,7 +1,11 @@
 package ro.ianders.universitylabsterremake;
 
+import android.app.Activity;
 import android.app.Notification;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +31,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import ro.ianders.universitylabsterremake.broadcastreciervers.NotificationPublisher;
+
 import ro.ianders.universitylabsterremake.datatypes.Student;
 import ro.ianders.universitylabsterremake.mainactivityfragments.CoursesFragment;
 import ro.ianders.universitylabsterremake.mainactivityfragments.PendingCoursesFragment;
@@ -35,11 +40,12 @@ import ro.ianders.universitylabsterremake.mainactivityfragments.TimetableFragmen
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ChangeProfilePicHeader {
 
     private ImageView ivCurrentUser;
     private TextView tvNameCurrentUser;
     private TextView tvEmailCurrentUser;
+    private ProgressBar pbLoadData;
 
     private FirebaseAuth firebaseAuth;
 
@@ -51,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-
+        pbLoadData = findViewById(R.id.pbLoadData);
 
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -180,12 +186,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onClick(View view) { //from the View.OnClickListener interface
-
-
-    }
-
     private void signOut() {
         Toast.makeText(this, "You are logged out!", Toast.LENGTH_SHORT).show();
 
@@ -227,14 +227,17 @@ public class MainActivity extends AppCompatActivity
 
     private void populateHeader() {
 
-        ivCurrentUser.setImageResource(R.mipmap.uptlogo);
         Student student = LabsterApplication.getCurrentStudent();
 
         if(student!= null) {
             if(student.getProfile().getFirstName() != null)
                 tvNameCurrentUser.setText(String.format("%s %s", student.getProfile().getFirstName(), student.getProfile().getLastName()));
+
+            if(student.getProfile().getPicture() != null)
+                ivCurrentUser.setImageBitmap(ProfileFragment.decodeBitmapFromString(student.getProfile().getPicture())); //profile pictured
+                // stored as a String
             else
-                tvNameCurrentUser.setText("Student's name");
+                ivCurrentUser.setImageResource(R.mipmap.uptlogo); // default view
         }
 
         if(firebaseAuth.getCurrentUser() != null)
@@ -244,6 +247,13 @@ public class MainActivity extends AppCompatActivity
 
     private class PopulateAsyncTask extends AsyncTask<NavigationView, Void, NavigationView> { // it populated the view when we load up all the data from the
         //database AND after the data is loaded it calls the util method that increments the dates and clears the check-ins
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pbLoadData.setVisibility(View.VISIBLE);
+        }
 
         @Override
         protected NavigationView doInBackground(NavigationView... v) {
@@ -259,8 +269,15 @@ public class MainActivity extends AppCompatActivity
             checkForEmptyUserData(); // sends the user to fill it's data if it is not filled otherwise continue
             LabsterApplication.getInstace().updateDatesFromDatabase(); // we update the dates from the courses and activity courses and clear the check-ins
             populateHeader(); // we populate the header after the data is loaded in the system
+            pbLoadData.setVisibility(View.GONE);
             onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_courses)); // we select at start the course fragment
         }
     }
 
+
+    @Override
+    public void changePic(Bitmap bitmap) {
+        ivCurrentUser.setImageBitmap(bitmap);
+    }
 }
+

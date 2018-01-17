@@ -2,7 +2,6 @@ package ro.ianders.universitylabsterremake.mainactivityfragments;
 
 
 import android.app.Notification;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 
 import ro.ianders.universitylabsterremake.AddCourseActivity;
@@ -117,10 +117,13 @@ public class CoursesFragment extends Fragment {
                     (c.getCourseData().getSection().equalsIgnoreCase(currentStudent.getSection())))
                 for (Schedule s : c.getSchedules()) {
 
-                    generateNotification(c.getCourseData().getNameCourse(), s.getStartTime(), s.getEndTime(), s.getDate(), R.drawable.course, i);
-                    //we generate notifications
-                    // for all the courses that are from our same year, section, faculty and for all the schedules
-                    i++;  // we increment the id for a new unique one
+                    if( getCurrentHourOfTheDay() <= Integer.parseInt(s.getStartTime().split(":")[0])) { // we don't want to always show all the notifications from
+                        // passed courses ( if we don't put this if all the notifications will be generated when you open the app)
+                        generateNotification(c.getCourseData().getNameCourse(), s.getStartTime(), s.getEndTime(), s.getDate(), R.drawable.course, i);
+                        //we generate notifications
+                        // for all the courses that are from our same year, section, faculty and for all the schedules
+                        i++;  // we increment the id for a new unique one
+                    }
 
 
                     if (todayDate.equals(s.getDate())) { //grab all the data from today
@@ -143,15 +146,19 @@ public class CoursesFragment extends Fragment {
                     & ac.getCourseData().getFaculty().equalsIgnoreCase(currentStudent.getFaculty()))
                 for (Schedule s : ac.getSchedules()) {
 
-                    int drawableImage;
-                    if(ac.getType().substring(0,1).equalsIgnoreCase("l"))
-                        drawableImage = R.drawable.laboratory;
-                    else
-                        drawableImage = R.drawable.seminary;
-                    generateNotification(ac.getCourseData().getNameCourse(), s.getStartTime(), s.getEndTime(), s.getDate(), drawableImage, i);
-                    //we generate notifications
-                    // for all the activity courses that are from our same year, section, faculty and for all the schedules
-                    i++;   // we increment the id for a new unique one
+
+                    if( getCurrentHourOfTheDay() <= Integer.parseInt(s.getStartTime().split(":")[0])) { // we don't want to always show all the notifications from
+                        // passed courses ( if we don't put this if all the notifications will be generated when you open the app)
+                        int drawableImage;
+                        if (ac.getType().substring(0, 1).equalsIgnoreCase("l"))
+                            drawableImage = R.drawable.laboratory;
+                        else
+                            drawableImage = R.drawable.seminary;
+                        generateNotification(ac.getCourseData().getNameCourse(), s.getStartTime(), s.getEndTime(), s.getDate(), drawableImage, i);
+                        //we generate notifications
+                        // for all the activity courses that are from our same year, section, faculty and for all the schedules
+                        i++;   // we increment the id for a new unique one
+                    }
 
                     if (todayDate.equals(s.getDate())) {
                         startHour = s.getStartTime();
@@ -182,7 +189,10 @@ public class CoursesFragment extends Fragment {
             NotificationPublisher.scheduleNotification(getContext(), notification, startHourInt - LabsterConstants.NOTIFICATION_DELAY, date, request_code);
         }
 
-
+    private int getCurrentHourOfTheDay() {
+        Calendar c = Calendar.getInstance();
+        return c.get(Calendar.HOUR_OF_DAY);
+    }
 
     interface CourseOnItemClickListener<T extends ListData> { //listener for the CoursesListAdapter
         void onItemClick(T listData);

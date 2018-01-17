@@ -77,8 +77,8 @@ public class NotificationPublisher extends BroadcastReceiver{
         String[] dates = date.split("/"); // dd/MM/yyyy
         Calendar c = Calendar.getInstance();
         c.set(Calendar.YEAR, Integer.parseInt(dates[2]));
-        c.set(Calendar.MONTH, Integer.parseInt(dates[1]));
-        c.set(Calendar.DAY_OF_WEEK, Integer.parseInt(dates[0]));
+        c.set(Calendar.MONTH, Integer.parseInt(dates[1]) - 1); // the Calendar.MONTH has values from 0 to 11 for every specific month
+        c.set(Calendar.DAY_OF_MONTH, Integer.parseInt(dates[0]));
         c.set(Calendar.HOUR_OF_DAY , hour); // Calendar.HOUR_OF_DAY is used when you have a 24 hour per day system
         c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0); //if we don't set the seconds and the milliseconds it will take them from getInstance() and we don't want that

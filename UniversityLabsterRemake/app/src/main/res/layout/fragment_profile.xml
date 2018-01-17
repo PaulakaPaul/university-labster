@@ -17,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:collapsedTitleGravity="center_horizontal"
+            app:collapsedTitleGravity="center_vertical|center_horizontal"
+            app:expandedTitleGravity="bottom|center_horizontal"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginEnd="64dp"
             app:expandedTitleMarginStart="48dp"
@@ -25,6 +26,7 @@
 
 
             <ImageView
+                android:id="@+id/ivProfile"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
                 android:adjustViewBounds="true"
@@ -50,13 +52,30 @@
 
     <include layout="@layout/content_profile" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fbtnProfileEdit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_edit"
-        app:layout_anchor="@id/app_bar"
-        app:layout_anchorGravity="bottom|end" />
+    <RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/fab_margin"
+    app:layout_anchor="@id/app_bar"
+    app:layout_anchorGravity="bottom|end">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fbtnProfileEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_edit"
+            android:layout_below="@+id/fbtnProfile"
+            />
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fbtnProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_add_a_photo_white" />
+
+
+    </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>
